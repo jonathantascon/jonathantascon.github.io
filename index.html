@@ -100,7 +100,7 @@
       <div class="brand">📈 Gestión <span>Trading</span></div>
       <button class="nav-item active" data-sec="panel">🏠 Panel</button>
       <button class="nav-item" data-sec="operaciones">🧾 Operaciones</button>
-      <button class="nav-item" data-sec="posiciones">💼 Posiciones</button>
+      <button class="nav-item" data-sec="posiciones">📅 Posiciones diarias</button>
       <button class="nav-item" data-sec="diario">📓 Diario</button>
       <button class="nav-item" data-sec="estadisticas">📊 Estadísticas</button>
       <button class="nav-item" data-sec="config">⚙️ Configuración</button>
@@ -149,11 +149,48 @@
         </div>
       </section>
 
-      <!-- POSICIONES -->
+      <!-- POSICIONES DIARIAS -->
       <section class="section" id="sec-posiciones">
-        <h2>Posiciones</h2>
-        <p class="desc">Tus posiciones abiertas, de un vistazo.</p>
-        <div class="panel-box" style="margin-top:0;"><div class="empty">Aquí irán tus posiciones abiertas. En el siguiente paso conectamos esta sección con tus operaciones en curso.</div></div>
+        <h2>Posiciones diarias</h2>
+        <p class="desc">La guía del día según el parte del oro, y las posiciones que tomas con base en ella.</p>
+
+        <!-- PARTE-ORO-INICIO -->
+        <div class="panel-box" style="margin-top:0; border-left:4px solid var(--gold);">
+          <div style="font-size:13px; color:var(--muted);">🥇 PARTE DEL ORO — MIÉRCOLES 25 DE NOVIEMBRE DE 2026</div>
+          <div style="font-size:24px; font-weight:800; margin-top:6px;">XAU/USD ~$3.471,89 <span class="neg" style="font-size:16px;">−2,38% intradía</span></div>
+          <div style="font-size:14px; color:var(--muted); margin-top:2px;">Último cierre (martes): $3.556,37 · Nuevo mínimo de 52 semanas: $3.454,20 · GLD $318,04 · RSI-14: 29,10 (sobreventa)</div>
+          <div style="margin-top:12px;"><span style="background:rgba(239,68,68,.15); border:1px solid var(--red); color:#ffb4b4; border-radius:999px; padding:5px 12px; font-size:13px; font-weight:700;">SESGO: BAJISTA DE CORTO PLAZO</span></div>
+          <div style="font-size:14px; margin-top:12px;">Semáforo: Fed 🔴 · Rendimiento real 🔴 · Dólar 🟡 · Bancos centrales 🟢 · Flujos ETF 🟡 · Posicionamiento 🔴 · Geopolítica 🟡 · Técnica 🔴</div>
+          <div style="font-size:14px; margin-top:10px;"><b>Escenario base:</b> rango <b>$3.400–$3.550</b> con sesgo bajista hasta el CFTC del viernes 27-nov. Semana corta por Acción de Gracias (mañana jueves mercados cerrados): poca liquidez, movimientos amplificados.</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; font-size:14px;">
+            <div><b class="neg">Soportes</b><br>$3.448,88<br>$3.430–$3.450<br>$3.421 (zona $3.400–$3.420)</div>
+            <div><b class="pos">Resistencias</b><br>$3.559,65 (apertura del día)<br>$3.634 (línea en la arena)<br>$3.685–$3.700</div>
+          </div>
+          <div style="font-size:14px; margin-top:12px;"><b>Clave del día:</b> el cierre debe recuperar <b>$3.500</b> para frenar la caída; si cierra bajo $3.500, se abren los soportes. Si recupera y cierra sobre <b>$3.558,63</b>, puerta a $3.634. Próximo dato: <b>CFTC, viernes 27-nov</b>.</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:12px;">Fuente: parte diario del oro (vault de Obsidian), cifras intradía de la mañana. Información para decidir, no recomendación de inversión. Este bloque se actualiza con cada parte nuevo.</div>
+        </div>
+        <!-- PARTE-ORO-FIN -->
+
+        <div class="panel-box">
+          <div style="font-weight:700; margin-bottom:10px;">📌 Mi posición de hoy</div>
+          <form class="row-form" id="posForm">
+            <div><label>Fecha</label><input type="date" id="posFecha" required></div>
+            <div><label>Activo</label><input type="text" id="posActivo" value="XAU/USD" required></div>
+            <div><label>Dirección</label><select id="posDir"><option>Venta</option><option>Compra</option></select></div>
+            <div><label>Entrada</label><input type="number" step="any" id="posEntrada" placeholder="0.00" required></div>
+            <div><label>Stop Loss</label><input type="number" step="any" id="posStop" placeholder="0.00"></div>
+            <div><label>Objetivo</label><input type="number" step="any" id="posObjetivo" placeholder="0.00"></div>
+            <div><label>Nota</label><input type="text" id="posNota" placeholder="Motivo, según el parte..."></div>
+            <div><button type="submit" class="btn-add">+ Añadir</button></div>
+          </form>
+        </div>
+        <div class="panel-box">
+          <table>
+            <thead><tr><th>Fecha</th><th>Activo</th><th>Dirección</th><th>Entrada</th><th>Stop</th><th>Objetivo</th><th>Nota</th><th></th></tr></thead>
+            <tbody id="posBody"></tbody>
+          </table>
+          <div class="empty" id="posEmpty">Todavía no registras posiciones. Cuando tomes la del día, anótala aquí con su stop y su objetivo.</div>
+        </div>
       </section>
 
       <!-- DIARIO -->
@@ -253,7 +290,7 @@
     $("appView").style.display="block";
     $("userEmail").textContent = localStorage.getItem(K_USER)||"";
     $("cfgEmail").textContent = localStorage.getItem(K_USER)||"";
-    renderOps(); renderStats(); loadDiario();
+    renderOps(); renderStats(); renderPos(); loadDiario();
   }
   $("logoutBtn").addEventListener("click", function(){
     sessionStorage.removeItem(K_SES); location.reload();
@@ -324,6 +361,39 @@
     $("esPer").textContent = ops.length ? per : "—";
     $("esMejor").textContent = ops.length ? money(Math.max.apply(null, ops.map(function(o){return o.resultado;}))) : "—";
   }
+
+  /* ---------- POSICIONES DIARIAS ---------- */
+  var K_POS="gt_pos";
+  function getPos(){ try{ return JSON.parse(localStorage.getItem(K_POS)||"[]"); }catch(e){ return []; } }
+  function setPos(p){ localStorage.setItem(K_POS, JSON.stringify(p)); }
+  function renderPos(){
+    var pos=getPos(), body=$("posBody"); body.innerHTML="";
+    $("posEmpty").style.display = pos.length ? "none" : "block";
+    pos.slice().reverse().forEach(function(p, ri){
+      var idx = pos.length-1-ri;
+      var tr=document.createElement("tr");
+      [p.fecha, p.activo, p.dir, p.entrada||"—", p.stop||"—", p.objetivo||"—", p.nota||""].forEach(function(v){
+        var td=document.createElement("td"); td.textContent=v; tr.appendChild(td);
+      });
+      var tdD=document.createElement("td");
+      var b=document.createElement("button"); b.className="del"; b.textContent="✕"; b.title="Eliminar";
+      b.addEventListener("click", function(){ var q=getPos(); q.splice(idx,1); setPos(q); renderPos(); });
+      tdD.appendChild(b); tr.appendChild(tdD);
+      body.appendChild(tr);
+    });
+  }
+  $("posForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var pos=getPos();
+    pos.push({
+      fecha: $("posFecha").value, activo: $("posActivo").value.trim(),
+      dir: $("posDir").value, entrada: $("posEntrada").value,
+      stop: $("posStop").value, objetivo: $("posObjetivo").value, nota: $("posNota").value.trim()
+    });
+    setPos(pos); renderPos();
+    $("posEntrada").value=""; $("posStop").value=""; $("posObjetivo").value=""; $("posNota").value="";
+  });
+  $("posFecha").value = todayStr();
 
   /* ---------- DIARIO ---------- */
   function loadDiario(){
