@@ -1,0 +1,9 @@
+name = "jonathan-trading-panel"
+compatibility_date = "2026-11-28"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jonathan-trading-panel"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"

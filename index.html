@@ -126,20 +126,24 @@
   <div class="login-card">
     <div class="logo">📈</div>
     <h1>Gestión <span>Trading</span></h1>
-    <p class="sub" id="loginSub">Crea un acceso local para este navegador</p>
+    <p class="sub" id="loginSub">Inicia sesión en tu cuenta</p>
     <form id="loginForm" autocomplete="off">
       <label for="email">Correo electrónico</label>
       <input type="email" id="email" required placeholder="tu@correo.com">
       <label for="password">Contraseña</label>
-      <input type="password" id="password" required placeholder="••••••••">
-      <div id="confirmWrap">
+      <input type="password" id="password" required autocomplete="current-password" placeholder="Mínimo 12 caracteres">
+      <div id="confirmWrap" style="display:none;">
         <label for="password2">Confirmar contraseña</label>
-        <input type="password" id="password2" placeholder="••••••••">
+        <input type="password" id="password2" autocomplete="new-password" placeholder="••••••••">
+      </div>
+      <div id="setupTokenWrap" style="display:none;">
+        <label for="setupToken">Token de configuración inicial</label>
+        <input type="password" id="setupToken" autocomplete="off" placeholder="Token entregado por el administrador">
       </div>
       <div class="error" id="loginError"></div>
-      <button type="submit" class="btn-gold" id="loginBtn">Crear acceso local</button>
+      <button type="submit" class="btn-gold" id="loginBtn">Iniciar sesión</button>
     </form>
-    <p class="fineprint">Bloqueo local del navegador. No es autenticación real y se puede eludir desde este dispositivo. Tus registros no se envían a un servidor. Descarga un respaldo desde Configuración.</p>
+    <p class="fineprint" id="authNotice">Cuenta privada. Las operaciones y posiciones se guardan en una base de datos protegida.</p>
   </div>
 </div>
 
@@ -197,6 +201,7 @@
           <div class="stat"><div class="k">% de aciertos, sin empates</div><div class="v" id="stWin">—</div></div>
         </div>
         <div class="panel-box" id="panelHint">Todavía no tienes operaciones. Ve a <b>Operaciones</b> y registra la primera: el panel se llena solo.</div>
+        <div id="saveStatus" style="color:var(--muted); font-size:13px; margin-top:8px;" aria-live="polite"></div>
       </section>
 
       <!-- OPERACIONES -->
@@ -587,27 +592,27 @@
       <!-- CONFIGURACIÓN -->
       <section class="section" id="sec-config">
         <h2>Configuración</h2>
-        <p class="desc">Acceso local y registros guardados en este navegador. No hay cuentas ni respaldo en la nube.</p>
+        <p class="desc">Tu cuenta privada y sus registros se guardan en D1. La sesión usa una cookie protegida.</p>
         <div class="panel-box" style="margin-top:0;">
-          <p style="font-size:14px; color:var(--muted);">Acceso local de <b id="cfgEmail" style="color:var(--text);"></b>. Esta clave solo bloquea la interfaz de este navegador.</p>
-          <label>Clave local actual</label>
+          <p style="font-size:14px; color:var(--muted);">Cuenta de <b id="cfgEmail" style="color:var(--text);"></b>.</p>
+          <label>Contraseña actual</label>
           <input type="password" id="cfgActual" placeholder="••••••••">
-          <label>Nueva clave local</label>
+          <label>Nueva contraseña</label>
           <input type="password" id="cfgNueva" placeholder="••••••••">
           <div class="error" id="cfgError"></div>
-          <button class="btn-add" id="cfgCambiar" style="margin-top:14px;">Cambiar clave local</button>
+          <button class="btn-add" id="cfgCambiar" style="margin-top:14px;">Cambiar contraseña</button>
         </div>
         <div class="panel-box">
           <h3 style="margin-bottom:8px;">Respaldo de registros</h3>
-          <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">El archivo incluye operaciones, posiciones y diario. No incluye correo ni clave. Restaurar reemplaza esos registros en este navegador.</p>
+          <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">El archivo incluye operaciones, posiciones y diario. No incluye correo ni contraseña. Restaurar reemplaza tus registros guardados en el servidor.</p>
           <button class="btn-add" id="backupExport" type="button">Descargar respaldo JSON</button>
           <label for="backupImport">Restaurar respaldo JSON</label>
           <input type="file" id="backupImport" accept="application/json,.json">
           <div id="backupMsg" style="color:var(--muted); font-size:13px; margin-top:8px;" aria-live="polite"></div>
         </div>
         <div class="panel-box">
-          <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">Borra el acceso y todos los datos guardados en este navegador.</p>
-          <button class="btn-ghost" id="cfgBorrar" style="color:var(--red); border-color:var(--red); width:auto; padding:10px 16px;">Borrar datos locales</button>
+          <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">Esta acción borra las operaciones, posiciones y notas guardadas en el servidor.</p>
+          <button class="btn-ghost" id="cfgBorrar" style="color:var(--red); border-color:var(--red); width:auto; padding:10px 16px;">Borrar registros del servidor</button>
         </div>
       </section>
   </main>
@@ -618,46 +623,75 @@
   "use strict";
   var K_USER="gt_user", K_HASH="gt_hash", K_OPS="gt_ops", K_DIARIO="gt_diario", K_SES="gt_session", K_POS="gt_pos";
   var $=function(id){return document.getElementById(id);};
-
-  function sha256(text){
-    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(function(buf){
-      return Array.prototype.map.call(new Uint8Array(buf), function(b){return ("0"+b.toString(16)).slice(-2);}).join("");
+  var appData={operations:[],positions:[],diary:{}}, hasAccount=false, saveQueue=Promise.resolve(), dataRevision=null;
+  function api(path,options){
+    options=options||{};var headers=Object.assign({},options.headers||{});
+    if(options.body)headers["Content-Type"]="application/json";
+    return fetch(path,Object.assign({credentials:"same-origin"},options,{headers:headers})).then(function(response){
+      return response.json().catch(function(){return {};}).then(function(data){
+        if(!response.ok){var error=new Error(data.error||"No se pudo completar la solicitud.");error.status=response.status;throw error;}
+        return data;
+      });
     });
   }
   function money(n){ return (n<0?"-$":"$") + Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}); }
-  function getOps(){ try{ return JSON.parse(localStorage.getItem(K_OPS)||"[]"); }catch(e){ return []; } }
-  function setOps(o){ localStorage.setItem(K_OPS, JSON.stringify(o)); }
+  function getOps(){ return appData.operations; }
+  function setOps(o){ appData.operations=o; persistData(); }
+  function getPos(){ return appData.positions; }
+  function setPos(p){ appData.positions=p; persistData(); }
+  function getDiario(){ return appData.diary; }
   function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
-
-  /* ---------- LOGIN ---------- */
-  var hasAccount = !!localStorage.getItem(K_HASH);
-  if(hasAccount){
-    $("loginSub").textContent = "Inicia sesión para entrar a tu panel";
-    $("loginBtn").textContent = "Entrar";
-    $("confirmWrap").style.display = "none";
-    $("email").value = localStorage.getItem(K_USER) || "";
+  function setSaveStatus(message,isError){
+    var el=$("saveStatus");el.textContent=message;el.style.color=isError?"var(--red)":"var(--muted)";
   }
-  function showError(msg){ var e=$("loginError"); e.textContent=msg; e.style.display="block"; }
+  function persistData(){
+    var body=JSON.stringify({data:appData,expectedRevision:dataRevision});
+    var job=saveQueue.catch(function(){}).then(function(){return api("/api/data",{method:"PUT",body:body});});
+    saveQueue=job;
+    job.then(function(result){dataRevision=result.revision;setSaveStatus("Cambios guardados en el servidor.",false);})
+       .catch(function(error){setSaveStatus(error.message||"No se pudieron guardar los cambios.",true);});
+    return job;
+  }
 
-  $("loginForm").addEventListener("submit", function(ev){
-    ev.preventDefault();
-    var email=$("email").value.trim().toLowerCase(), pass=$("password").value;
-    if(!email || !pass){ showError("Completa el correo y la contraseña."); return; }
-    if(!hasAccount){
-      if(pass.length < 6){ showError("La contraseña debe tener al menos 6 caracteres."); return; }
-      if(pass !== $("password2").value){ showError("Las contraseñas no coinciden."); return; }
-      sha256(pass).then(function(h){
-        localStorage.setItem(K_USER, email); localStorage.setItem(K_HASH, h);
-        sessionStorage.setItem(K_SES,"1"); enterApp();
-      });
-    } else {
-      sha256(pass).then(function(h){
-        if(email === (localStorage.getItem(K_USER)||"") && h === localStorage.getItem(K_HASH)){
-          sessionStorage.setItem(K_SES,"1"); enterApp();
-        } else { showError("Correo o contraseña incorrectos."); }
-      });
-    }
+
+  /* ---------- AUTENTICACIÓN EN SERVIDOR ---------- */
+  function showError(msg){var e=$("loginError");e.textContent=msg;e.style.display="block";}
+  function configureLogin(initialized){
+    hasAccount=initialized;$("loginError").style.display="none";
+    $("setupTokenWrap").style.display=initialized?"none":"block";
+    $("confirmWrap").style.display=initialized?"none":"block";
+    $("loginSub").textContent=initialized?"Inicia sesión en tu cuenta":"Crea la primera cuenta privada";
+    $("loginBtn").textContent=initialized?"Iniciar sesión":"Crear cuenta privada";
+    $("password").setAttribute("autocomplete",initialized?"current-password":"new-password");
+    $("authNotice").textContent=initialized
+      ?"Cuenta privada. La primera cuenta ya está configurada y el registro público permanece cerrado."
+      :"Configura la única cuenta. Necesitas el token inicial guardado como secreto en Cloudflare.";
+  }
+  $("loginForm").addEventListener("submit",async function(ev){
+    ev.preventDefault();$("loginBtn").disabled=true;$("loginError").style.display="none";
+    var email=$("email").value.trim().toLowerCase(),password=$("password").value;
+    try{
+      if(!email||!password)throw new Error("Completa el correo y la contraseña.");
+      var body={action:hasAccount?"login":"setup",email:email,password:password};
+      if(!hasAccount){
+        if(password.length<12)throw new Error("La contraseña debe tener al menos 12 caracteres.");
+        if(password!==$("password2").value)throw new Error("Las contraseñas no coinciden.");
+        body.setupToken=$("setupToken").value;
+      }
+      var result=await api("/api/auth",{method:"POST",body:JSON.stringify(body)});
+      configureLogin(true);await enterApp(result.email);
+    }catch(error){showError(error.message||"No se pudo iniciar sesión.");}
+    finally{$("loginBtn").disabled=false;}
   });
+  async function initializeAuth(){
+    try{
+      var status=await api("/api/auth");configureLogin(!!status.initialized);
+      if(status.initialized){
+        try{var current=await api("/api/data");await enterApp(current.email||$("email").value,current);}
+        catch(error){if(error.status!==401)showError(error.message||"El servidor no está disponible.");}
+      }
+    }catch(error){showError("El servidor no está configurado o no responde. Abre la versión publicada en Cloudflare Pages.");}
+  }
 
   /* ---------- APP / MENÚ DESLIZABLE ---------- */
   function openDrawer(){
@@ -674,17 +708,16 @@
   $("burgerBtn").addEventListener("click", toggleDrawer);
   $("scrim").addEventListener("click", closeDrawer);
 
-  function enterApp(){
-    $("loginView").style.display="none";
-    $("appView").style.display="block";
-    $("userEmail").textContent = localStorage.getItem(K_USER)||"";
-    $("topEmail").textContent = localStorage.getItem(K_USER)||"";
-    $("cfgEmail").textContent = localStorage.getItem(K_USER)||"";
-    if(window.innerWidth >= 1024){ openDrawer(); }
-    renderOps(); renderStats(); renderPos(); loadDiario();
+  async function enterApp(email,payload){
+    if(!payload)payload=await api("/api/data");
+    appData=payload.data;dataRevision=payload.revision;$("loginView").style.display="none";$("appView").style.display="block";
+    $("userEmail").textContent=email||"";$("topEmail").textContent=email||"";$("cfgEmail").textContent=email||"";
+    if(window.innerWidth>=1024)openDrawer();
+    renderOps();renderStats();renderPos();loadDiario();
   }
-  $("logoutBtn").addEventListener("click", function(){
-    sessionStorage.removeItem(K_SES); location.reload();
+  $("logoutBtn").addEventListener("click",async function(){
+    try{await saveQueue.catch(function(){});await api("/api/auth",{method:"POST",body:JSON.stringify({action:"logout"})});}
+    finally{location.reload();}
   });
 
   /* Navegación del menú */
@@ -788,86 +821,37 @@
   }
 
   /* ---------- POSICIONES DIARIAS ---------- */
-  function getPos(){ try{ return JSON.parse(localStorage.getItem(K_POS)||"[]"); }catch(e){ return []; } }
-  function setPos(p){ localStorage.setItem(K_POS, JSON.stringify(p)); }
-  function getDiario(){ try{ var d=JSON.parse(localStorage.getItem(K_DIARIO)||"{}"); return d && typeof d==="object" && !Array.isArray(d) ? d : {}; }catch(e){ return {}; } }
-  function setBackupMessage(message, isError){
-    var el=$("backupMsg"); el.textContent=message; el.style.color=isError?"var(--red)":"var(--muted)";
+
+  function setBackupMessage(message,isError){
+    var el=$("backupMsg");el.textContent=message;el.style.color=isError?"var(--red)":"var(--muted)";
   }
-  $("backupExport").addEventListener("click", function(){
-    var payload={
-      format:"gestion-trading-backup",
-      version:1,
-      exportedAt:new Date().toISOString(),
-      data:{operations:getOps(), positions:getPos(), diary:getDiario()}
-    };
+  $("backupExport").addEventListener("click",function(){
+    var payload={format:"gestion-trading-backup",version:1,exportedAt:new Date().toISOString(),data:appData};
     var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
-    var url=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=url; a.download="respaldo-trading-"+todayStr()+".json";
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+    var url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download="respaldo-trading-"+todayStr()+".json";
+    document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);
     setBackupMessage("Respaldo descargado. Guárdalo en un lugar seguro.",false);
   });
-  $("backupImport").addEventListener("change", function(ev){
-    var file=ev.target.files && ev.target.files[0];
-    if(!file) return;
-    if(file.size>10*1024*1024){
-      setBackupMessage("El archivo supera el máximo de 10 MB.",true); ev.target.value=""; return;
-    }
+  $("backupImport").addEventListener("change",function(ev){
+    var file=ev.target.files&&ev.target.files[0];if(!file)return;
+    if(file.size>10*1024*1024){setBackupMessage("El archivo supera el máximo de 10 MB.",true);ev.target.value="";return;}
     var reader=new FileReader();
     reader.onerror=function(){setBackupMessage("No se pudo leer el archivo.",true);ev.target.value="";};
-    reader.onload=function(){
+    reader.onload=async function(){
       try{
-        var backup=JSON.parse(String(reader.result||""));
-        var d=backup && backup.data;
-        if(backup.format!=="gestion-trading-backup" || backup.version!==1 || !d ||
-           !Array.isArray(d.operations) || !Array.isArray(d.positions) ||
-           !d.diary || typeof d.diary!=="object" || Array.isArray(d.diary) ||
-           d.operations.length>50000 || d.positions.length>50000 ||
-           Object.keys(d.diary).length>50000){
+        var backup=JSON.parse(String(reader.result||"")),d=backup&&backup.data;
+        if(backup.format!=="gestion-trading-backup"||backup.version!==1||!d||
+          !Array.isArray(d.operations)||!Array.isArray(d.positions)||
+          !d.diary||typeof d.diary!=="object"||Array.isArray(d.diary)||
+          d.operations.length>50000||d.positions.length>50000||Object.keys(d.diary).length>50000){
           throw new Error("El formato del respaldo no es válido.");
         }
-        var validOps=d.operations.every(function(o){
-          return o && typeof o==="object" &&
-            typeof o.fecha==="string" && o.fecha.length<=20 &&
-            typeof o.activo==="string" && o.activo.length<=100 &&
-            typeof o.dir==="string" && o.dir.length<=20 &&
-            (o.entrada==null || (typeof o.entrada==="string" && o.entrada.length<=100)) &&
-            (o.salida==null || (typeof o.salida==="string" && o.salida.length<=100)) &&
-            typeof o.resultado==="number" && Number.isFinite(o.resultado);
-        });
-        var validPositions=d.positions.every(function(p){
-          return p && typeof p==="object" &&
-            typeof p.fecha==="string" && p.fecha.length<=20 &&
-            typeof p.activo==="string" && p.activo.length<=100 &&
-            typeof p.dir==="string" && p.dir.length<=20 &&
-            ["entrada","stop","objetivo","nota"].every(function(k){
-              return p[k]==null || (typeof p[k]==="string" && p[k].length<=(k==="nota"?5000:100));
-            });
-        });
-        var validDiary=Object.keys(d.diary).every(function(k){
-          return /^\d{4}-\d{2}-\d{2}$/.test(k) && typeof d.diary[k]==="string" && d.diary[k].length<=20000;
-        });
-        if(!validOps || !validPositions || !validDiary) throw new Error("El respaldo contiene registros inválidos.");
-        if(!confirm("Restaurar reemplazará operaciones, posiciones y notas actuales. Descarga un respaldo antes de continuar. ¿Deseas restaurar?")){
-          ev.target.value=""; return;
-        }
-        var oldOps=localStorage.getItem(K_OPS), oldPos=localStorage.getItem(K_POS), oldDiary=localStorage.getItem(K_DIARIO);
-        try{
-          localStorage.setItem(K_OPS,JSON.stringify(d.operations));
-          localStorage.setItem(K_POS,JSON.stringify(d.positions));
-          localStorage.setItem(K_DIARIO,JSON.stringify(d.diary));
-        }catch(storageError){
-          if(oldOps===null)localStorage.removeItem(K_OPS);else localStorage.setItem(K_OPS,oldOps);
-          if(oldPos===null)localStorage.removeItem(K_POS);else localStorage.setItem(K_POS,oldPos);
-          if(oldDiary===null)localStorage.removeItem(K_DIARIO);else localStorage.setItem(K_DIARIO,oldDiary);
-          throw new Error("No hay espacio para guardar el respaldo. No se aplicaron los cambios.");
-        }
-        renderOps(); renderStats(); renderPos(); loadDiario();
-        setBackupMessage("Respaldo restaurado correctamente.",false);
-      }catch(err){
-        setBackupMessage(err && err.message ? err.message : "No se pudo restaurar el respaldo.",true);
-      }
+        if(!confirm("Restaurar reemplazará operaciones, posiciones y notas del servidor. Descarga un respaldo antes. ¿Continuar?")){ev.target.value="";return;}
+        var saved=await api("/api/data",{method:"PUT",body:JSON.stringify({data:d,expectedRevision:dataRevision})});
+        dataRevision=saved.revision;appData=d;renderOps();renderStats();renderPos();loadDiario();
+        setBackupMessage("Respaldo restaurado correctamente en el servidor.",false);
+      }catch(error){setBackupMessage(error.message||"No se pudo restaurar el respaldo.",true);}
       ev.target.value="";
     };
     reader.readAsText(file);
@@ -903,37 +887,39 @@
 
   /* ---------- DIARIO ---------- */
   function loadDiario(){
-    var d={}; try{ d=JSON.parse(localStorage.getItem(K_DIARIO)||"{}"); }catch(e){}
+    var d=getDiario();
     $("diarioTexto").value = d[todayStr()] || "";
   }
   $("diarioGuardar").addEventListener("click", function(){
-    var d={}; try{ d=JSON.parse(localStorage.getItem(K_DIARIO)||"{}"); }catch(e){}
+    var d=getDiario();
     d[todayStr()] = $("diarioTexto").value;
-    localStorage.setItem(K_DIARIO, JSON.stringify(d));
-    $("diarioMsg").textContent = "Nota guardada ("+todayStr()+").";
+    appData.diary=d;
+    persistData().then(function(){$("diarioMsg").textContent="Nota guardada en el servidor ("+todayStr()+").";})
+      .catch(function(error){$("diarioMsg").textContent=error.message||"No se pudo guardar la nota.";});
   });
 
   /* ---------- CONFIGURACIÓN ---------- */
-  $("cfgCambiar").addEventListener("click", function(){
-    var e=$("cfgError");
-    sha256($("cfgActual").value).then(function(h){
-      if(h !== localStorage.getItem(K_HASH)){ e.textContent="La contraseña actual no es correcta."; e.style.display="block"; return; }
-      if($("cfgNueva").value.length < 6){ e.textContent="La nueva contraseña debe tener al menos 6 caracteres."; e.style.display="block"; return; }
-      sha256($("cfgNueva").value).then(function(h2){
-        localStorage.setItem(K_HASH, h2); e.style.display="none";
-        $("cfgActual").value=""; $("cfgNueva").value=""; alert("Contraseña actualizada.");
-      });
-    });
+  $("cfgCambiar").addEventListener("click",async function(){
+    var e=$("cfgError");e.style.display="none";
+    try{
+      await api("/api/auth",{method:"POST",body:JSON.stringify({
+        action:"change-password",currentPassword:$("cfgActual").value,newPassword:$("cfgNueva").value
+      })});
+      $("cfgActual").value="";$("cfgNueva").value="";
+      alert("Contraseña actualizada. Se cerraron las demás sesiones.");
+    }catch(error){e.textContent=error.message||"No se pudo cambiar la contraseña.";e.style.display="block";}
   });
-  $("cfgBorrar").addEventListener("click", function(){
-    if(confirm("¿Borrar el acceso y todos los datos locales de este navegador?")){
-      [K_USER,K_HASH,K_OPS,K_DIARIO,K_POS].forEach(function(k){ localStorage.removeItem(k); });
-      sessionStorage.removeItem(K_SES); location.reload();
-    }
+  $("cfgBorrar").addEventListener("click",async function(){
+    if(!confirm("Se borrarán del servidor todas tus operaciones, posiciones y notas. Esta acción no se puede deshacer. ¿Continuar?"))return;
+    try{
+      await api("/api/data",{method:"DELETE"});
+      appData={operations:[],positions:[],diary:{}};dataRevision=null;
+      renderOps();renderStats();renderPos();loadDiario();
+      setBackupMessage("Se borraron los registros del servidor.",false);
+    }catch(error){setBackupMessage(error.message||"No se pudieron borrar los registros.",true);}
   });
 
-  /* Sesión ya iniciada */
-  if(sessionStorage.getItem(K_SES)==="1" && hasAccount){ enterApp(); }
+  initializeAuth();
 })();
 </script>
 </body>
