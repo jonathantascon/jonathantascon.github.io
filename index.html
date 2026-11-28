@@ -846,7 +846,7 @@
             });
         });
         var validDiary=Object.keys(d.diary).every(function(k){
-          return /^\d{4}-\\d{2}-\\d{2}$/.test(k) && typeof d.diary[k]==="string" && d.diary[k].length<=20000;
+          return /^\d{4}-\d{2}-\d{2}$/.test(k) && typeof d.diary[k]==="string" && d.diary[k].length<=20000;
         });
         if(!validOps || !validPositions || !validDiary) throw new Error("El respaldo contiene registros inválidos.");
         if(!confirm("Restaurar reemplazará operaciones, posiciones y notas actuales. Descarga un respaldo antes de continuar. ¿Deseas restaurar?")){
