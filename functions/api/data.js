@@ -10,12 +10,12 @@ export async function onRequestGet({ request, env }) {
   const row = await env.DB.prepare(
     "SELECT payload, updated_at FROM user_data WHERE user_id = ?"
   ).bind(session.id).first();
-  if (!row) return json({ data: EMPTY_DATA, updatedAt: null, hasData: false });
+  if (!row) return json({ data: EMPTY_DATA, updatedAt: null, hasData: false, email: session.email });
 
   try {
     const data = JSON.parse(row.payload);
     if (!isValidData(data)) throw new Error("invalid data");
-    return json({ data, updatedAt: row.updated_at, hasData: true });
+    return json({ data, updatedAt: row.updated_at, hasData: true, email: session.email });
   } catch {
     return json({ error: "Los datos guardados no pasan la validación." }, 500);
   }
