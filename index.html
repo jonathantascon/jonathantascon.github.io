@@ -687,7 +687,7 @@
     try{
       var status=await api("/api/auth");configureLogin(!!status.initialized);
       if(status.initialized){
-        try{var current=await api("/api/data");await enterApp($("email").value,current);}
+        try{var current=await api("/api/data");await enterApp(current.email||$("email").value,current);}
         catch(error){if(error.status!==401)showError(error.message||"El servidor no está disponible.");}
       }
     }catch(error){showError("El servidor no está configurado o no responde. Abre la versión publicada en Cloudflare Pages.");}
