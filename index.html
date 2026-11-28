@@ -21,11 +21,643 @@
   input:focus,select:focus,textarea:focus{outline:2px solid var(--gold); border-color:transparent;}
   label{font-size:13px; color:var(--muted); display:block; margin:12px 0 6px;}
 
+  /* ---------- LOGIN ---------- */
+  #loginView{display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;}
+  .login-card{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:36px 30px; width:100%; max-width:410px; box-shadow:0 24px 60px rgba(0,0,0,.55); backdrop-filter:blur(8px);}
+  .login-card .logo{font-size:42px; text-align:center;}
+  .login-card h1{font-size:23px; text-align:center; margin-top:8px; letter-spacing:.3px;}
+  .login-card h1 span{background:linear-gradient(90deg,var(--gold),var(--gold2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .login-card p.sub{color:var(--muted); text-align:center; font-size:14px; margin:6px 0 10px;}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#171106; border:none; border-radius:10px; padding:13px; width:100%; font-size:16px; font-weight:800; margin-top:18px; box-shadow:0 8px 20px rgba(245,185,66,.25);}
+  .btn-gold:active{transform:scale(.99);}
+  .error{background:rgba(239,68,68,.12); border:1px solid var(--red); color:#ffb4b4; border-radius:10px; padding:10px 12px; font-size:14px; margin-top:14px; display:none;}
+  .fineprint{color:var(--muted); font-size:12px; text-align:center; margin-top:16px; line-height:1.5;}
+
+  /* ---------- APP: topbar + menú deslizable ---------- */
+  #appView{display:none; min-height:100vh;}
+  .topbar{position:fixed; top:0; left:0; right:0; height:58px; z-index:40; display:flex; align-items:center; gap:12px; padding:0 16px;
+    background:rgba(7,13,24,.82); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .burger{background:rgba(255,255,255,.05); border:1px solid var(--line); color:var(--text); border-radius:10px; width:42px; height:42px; font-size:19px; line-height:1;}
+  .topbar .brand{font-size:17px; font-weight:800; letter-spacing:.3px;}
+  .topbar .brand span{background:linear-gradient(90deg,var(--gold),var(--gold2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .topbar .who{margin-left:auto; font-size:12.5px; color:var(--muted); max-width:45vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .drawer{position:fixed; top:0; left:0; bottom:0; width:262px; z-index:50; background:rgba(10,17,30,.97); border-right:1px solid var(--line);
+    padding:20px 14px; display:flex; flex-direction:column; gap:4px; transform:translateX(-105%); transition:transform .28s ease; box-shadow:20px 0 50px rgba(0,0,0,.4);}
+  .drawer.open{transform:translateX(0);}
+  .drawer .brand{font-size:18px; font-weight:800; padding:2px 10px 4px;}
+  .drawer .brand span{background:linear-gradient(90deg,var(--gold),var(--gold2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .drawer .tagline{font-size:12px; color:var(--muted); padding:0 10px 14px;}
+  .nav-item{background:none; border:none; color:var(--muted); text-align:left; padding:12px; border-radius:10px; font-size:15px; width:100%; transition:background .15s,color .15s;}
+  .nav-item:hover{background:rgba(255,255,255,.05); color:var(--text);}
+  .nav-item.active{background:linear-gradient(135deg, rgba(245,185,66,.18), rgba(212,136,6,.10)); color:var(--text); font-weight:700; box-shadow:inset 0 0 0 1px rgba(245,185,66,.35);}
+  .drawer .spacer{flex:1;}
+  .user-box{border-top:1px solid var(--line); padding-top:12px; font-size:13px; color:var(--muted); word-break:break-all;}
+  .btn-ghost{background:none; border:1px solid var(--line); color:var(--text); border-radius:10px; padding:9px 12px; font-size:14px; margin-top:8px; width:100%;}
+  .scrim{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:45; opacity:0; pointer-events:none; transition:opacity .25s;}
+  .scrim.show{opacity:1; pointer-events:auto;}
+  .main-wrap{padding:82px 22px 30px; max-width:1060px; margin:0 auto; transition:margin .28s ease;}
+  @media (min-width:1024px){ body.drawer-open .main-wrap{margin-left:262px; margin-right:auto;} }
+  .main-wrap h2{font-size:24px; margin-bottom:4px; letter-spacing:.2px;}
+  .main-wrap .desc{color:var(--muted); font-size:14px; margin-bottom:18px;}
+  .section{display:none;}
+  .section.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; backdrop-filter:blur(6px);}
+  .stat .k{color:var(--muted); font-size:13px;}
+  .stat .v{font-size:27px; font-weight:800; margin-top:6px;}
+  .pos{color:var(--green);} .neg{color:var(--red);}
+  .panel-box{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-top:16px; backdrop-filter:blur(6px);}
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th{color:var(--muted); text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); font-weight:600;}
+  td{padding:9px 6px; border-bottom:1px solid var(--line);}
+  .empty{color:var(--muted); text-align:center; padding:26px 10px; font-size:14px;}
+  .row-form{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; align-items:end;}
+  .row-form label{margin-top:0;}
+  .btn-add{background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#171106; border:none; border-radius:10px; padding:11px 16px; font-weight:800; font-size:15px;}
+  .del{background:none; border:none; color:var(--red); font-size:15px;}
+
+  /* ---------- ESTRATEGIAS ---------- */
+  .strat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px;}
+  .strat{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; backdrop-filter:blur(6px); display:flex; flex-direction:column; gap:8px;}
+  .strat .top{display:flex; align-items:center; gap:10px;}
+  .strat .num{background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#171106; font-weight:900; border-radius:10px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;}
+  .strat h3{font-size:16.5px; line-height:1.25;}
+  .strat .src{font-size:11.5px; color:var(--gold); border:1px solid rgba(245,185,66,.4); border-radius:999px; padding:3px 9px; white-space:nowrap; margin-left:auto;}
+  .strat .idea{font-size:14px; color:var(--text); line-height:1.5;}
+  .strat ul{list-style:none; font-size:13.5px; color:var(--muted); line-height:1.55;}
+  .strat ul b{color:var(--text);}
+  .strat .senal{font-size:12.5px; background:rgba(245,185,66,.08); border:1px dashed rgba(245,185,66,.35); border-radius:10px; padding:8px 10px; color:var(--text);}
+  .strat .live{font-size:12.5px; background:rgba(34,197,94,.10); border:1px solid rgba(34,197,94,.4); border-radius:10px; padding:8px 10px;}
+  .strat .use{margin-top:auto; background:none; border:1px solid rgba(245,185,66,.5); color:var(--gold); border-radius:10px; padding:10px; font-weight:700; font-size:14px;}
+  .strat .use:active{transform:scale(.99);}
+  .warn-box{background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.35); border-radius:16px; padding:16px 18px; margin-top:16px; font-size:14px; line-height:1.55;}
+
+  /* ---------- HISTORIAL ---------- */
+  .sub-list{display:none; flex-direction:column; gap:2px; margin:2px 0 6px 12px;}
+  .sub-list.open{display:flex;}
+  .sub-item{background:none; border:none; border-left:2px solid var(--line); color:var(--muted); text-align:left; padding:9px 12px; border-radius:0 9px 9px 0; font-size:14px; width:100%;}
+  .sub-item:hover{color:var(--text);}
+  .sub-item.active{color:var(--gold); border-left-color:var(--gold); background:rgba(245,185,66,.08); font-weight:700;}
+  .nav-item .caret{float:right; transition:transform .2s;}
+  .nav-item.open .caret{transform:rotate(180deg);}
+  .hist-panel{display:none;}
+  .hist-panel.active{display:block; animation:fadein .25s ease;}
+  .hist-panel h3{font-size:19px; margin-bottom:4px;}
+  .hist-intro{color:var(--muted); font-size:14px; line-height:1.55; margin-bottom:16px;}
+  .tl{position:relative; margin-left:6px; padding-left:20px; border-left:2px solid var(--line);}
+  .tl-item{position:relative; padding:0 0 16px;}
+  .tl-item::before{content:""; position:absolute; left:-27px; top:4px; width:12px; height:12px; border-radius:50%; background:#0b1322; border:2px solid var(--gold);}
+  .tl-date{font-size:12.5px; color:var(--gold); font-weight:700; letter-spacing:.4px;}
+  .tl-body{font-size:14px; line-height:1.55; margin-top:2px;}
+  .mv{display:inline-block; font-size:12px; font-weight:800; border-radius:999px; padding:2px 8px; margin-right:6px;}
+  .mv.up{background:rgba(34,197,94,.13); color:#7ee2a8; border:1px solid rgba(34,197,94,.4);}
+  .mv.dn{background:rgba(239,68,68,.13); color:#ffb4b4; border:1px solid rgba(239,68,68,.4);}
+  .mv.in{background:rgba(245,185,66,.12); color:var(--gold); border:1px solid rgba(245,185,66,.4);}
+  .src{color:var(--muted); font-size:12px; text-decoration:none; border-bottom:1px dotted var(--muted); white-space:nowrap;}
+  .src:hover{color:var(--gold);}
+  @media (max-width:720px){ .main-wrap{padding:76px 14px 24px;} .strat-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginView">
+  <div class="login-card">
+    <div class="logo">📈</div>
+    <h1>Gestión <span>Trading</span></h1>
+    <p class="sub" id="loginSub">Inicia sesión en tu cuenta</p>
+    <form id="loginForm" autocomplete="off">
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" required placeholder="tu@correo.com">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" required autocomplete="current-password" placeholder="Mínimo 12 caracteres">
+      <div id="confirmWrap" style="display:none;">
+        <label for="password2">Confirmar contraseña</label>
+        <input type="password" id="password2" autocomplete="new-password" placeholder="••••••••">
+      </div>
+      <div id="setupTokenWrap" style="display:none;">
+        <label for="setupToken">Token de configuración inicial</label>
+        <input type="password" id="setupToken" autocomplete="off" placeholder="Token entregado por el administrador">
+      </div>
+      <div class="error" id="loginError"></div>
+      <button type="submit" class="btn-gold" id="loginBtn">Iniciar sesión</button>
+    </form>
+    <p class="fineprint" id="authNotice">Cuenta privada. Las operaciones y posiciones se guardan en una base de datos protegida.</p>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="appView">
+  <header class="topbar">
+    <button class="burger" id="burgerBtn" aria-label="Abrir menú">☰</button>
+    <div class="brand">📈 Gestión <span>Trading</span></div>
+    <div class="who" id="topEmail"></div>
+  </header>
+
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="drawer" id="drawer">
+    <div class="brand">📈 Gestión <span>Trading</span></div>
+    <div class="tagline">Tu panel de oro y posiciones diarias</div>
+    <button class="nav-item active" data-sec="panel">🏠 Panel</button>
+    <button class="nav-item" data-sec="operaciones">🧾 Operaciones</button>
+    <button class="nav-item" data-sec="posiciones">📅 Posiciones diarias</button>
+    <button class="nav-item" data-sec="estrategias">♟️ Estrategias</button>
+    <button class="nav-item" data-sec="historial" id="histToggle">🕰️ Historial <span class="caret">▾</span></button>
+    <div class="sub-list" id="histSub">
+      <button class="sub-item active" data-hist="oro">🥇 Oro</button>
+      <button class="sub-item" data-hist="plata">🥈 Plata</button>
+      <button class="sub-item" data-hist="wti">🛢️ Petróleo WTI</button>
+      <button class="sub-item" data-hist="sp500">📈 S&amp;P 500</button>
+      <button class="sub-item" data-hist="nasdaq">💻 Nasdaq 100</button>
+      <button class="sub-item" data-hist="dow">🏭 Dow Jones</button>
+      <button class="sub-item" data-hist="eurusd">💶 EUR/USD</button>
+      <button class="sub-item" data-hist="gbpusd">💷 GBP/USD</button>
+      <button class="sub-item" data-hist="usdjpy">💴 USD/JPY</button>
+      <button class="sub-item" data-hist="btc">₿ Bitcoin</button>
+      <button class="sub-item" data-hist="eth">Ξ Ethereum</button>
+    </div>
+    <button class="nav-item" data-sec="diario">📓 Diario</button>
+    <button class="nav-item" data-sec="estadisticas">📊 Estadísticas</button>
+    <button class="nav-item" data-sec="config">⚙️ Configuración</button>
+    <div class="spacer"></div>
+    <div class="user-box">
+      <div id="userEmail"></div>
+      <button class="btn-ghost" id="logoutBtn">Salir</button>
+    </div>
+  </aside>
+
+  <main class="main-wrap">
+
+      <!-- PANEL -->
+      <section class="section active" id="sec-panel">
+        <h2>Panel</h2>
+        <p class="desc">El resumen de tu trading, calculado desde tus operaciones registradas.</p>
+        <div class="cards">
+          <div class="stat"><div class="k">Balance (resultado total)</div><div class="v" id="stBalance">—</div></div>
+          <div class="stat"><div class="k">Resultado de hoy</div><div class="v" id="stHoy">—</div></div>
+          <div class="stat"><div class="k">Resultado del mes</div><div class="v" id="stMes">—</div></div>
+          <div class="stat"><div class="k">% de aciertos, sin empates</div><div class="v" id="stWin">—</div></div>
+        </div>
+        <div class="panel-box" id="panelHint">Todavía no tienes operaciones. Ve a <b>Operaciones</b> y registra la primera: el panel se llena solo.</div>
+        <div id="saveStatus" style="color:var(--muted); font-size:13px; margin-top:8px;" aria-live="polite"></div>
+      </section>
+
+      <!-- OPERACIONES -->
+      <section class="section" id="sec-operaciones">
+        <h2>Operaciones</h2>
+        <p class="desc">Registra cada operación; todo queda guardado en este navegador.</p>
+        <div class="panel-box" style="margin-top:0;">
+          <form class="row-form" id="opForm">
+            <div><label>Fecha</label><input type="date" id="opFecha" required></div>
+            <div><label>Activo</label><input type="text" id="opActivo" placeholder="XAU/USD" required></div>
+            <div><label>Dirección</label><select id="opDir"><option>Compra</option><option>Venta</option></select></div>
+            <div><label>Entrada</label><input type="number" step="any" id="opEntrada" placeholder="0.00"></div>
+            <div><label>Salida</label><input type="number" step="any" id="opSalida" placeholder="0.00"></div>
+            <div><label>Resultado ($)</label><input type="number" step="any" id="opResultado" placeholder="0.00" required></div>
+            <div><button type="submit" class="btn-add">+ Añadir</button></div>
+          </form>
+        </div>
+        <div class="panel-box">
+          <table>
+            <thead><tr><th>Fecha</th><th>Activo</th><th>Dirección</th><th>Entrada</th><th>Salida</th><th>Resultado</th><th></th></tr></thead>
+            <tbody id="opBody"></tbody>
+          </table>
+          <div class="empty" id="opEmpty">Sin operaciones registradas todavía.</div>
+        </div>
+      </section>
+
+      <!-- POSICIONES DIARIAS -->
+      <section class="section" id="sec-posiciones">
+        <h2>Posiciones diarias</h2>
+        <p class="desc">La guía del día según el parte del oro, y las posiciones que tomas con base en ella.</p>
+
+        <!-- PARTE-ORO-INICIO -->
+        <div class="panel-box" style="margin-top:0; border-left:4px solid var(--gold);">
+          <div style="font-size:13px; color:var(--muted);">🥇 PARTE DEL ORO — VIERNES 27 DE NOVIEMBRE DE 2026</div>
+          <div style="font-size:24px; font-weight:800; margin-top:6px;">XAU/USD ~$3.630,03 <span class="pos" style="font-size:16px;">+1,79% intradía</span></div>
+          <div style="font-size:14px; color:var(--muted); margin-top:2px;">Último cierre (jueves): $3.566,30 (−0,64%) · Máximo de hoy: $3.685,39 · GLD ~$332,80 · RSI-14: 30,95</div>
+          <div style="margin-top:12px;"><span style="background:rgba(239,68,68,.15); border:1px solid var(--red); color:#ffb4b4; border-radius:999px; padding:5px 12px; font-size:13px; font-weight:700;">SESGO: BAJISTA DE CORTO PLAZO</span></div>
+          <div style="font-size:14px; margin-top:12px;">Semáforo: Fed 🔴 · Rendimiento real 🔴 · Dólar 🟡 · Bancos centrales 🟢 · Flujos ETF 🟡 · Posicionamiento 🔴 · Geopolítica 🟡 · Técnica 🔴</div>
+          <div style="font-size:14px; margin-top:10px;"><b>Escenario base:</b> rango <b>$3.550–$3.700</b> hasta el CFTC de hoy (15:30 ET) y la Fed del 8–9 dic. El oro rebota +1,79% y tocó $3.685,39: segundo freno tras el martillo del miércoles, pero sigue bajo las tres medias. Hoy, sesión corta por Black Friday.</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; font-size:14px;">
+            <div><b class="neg">Soportes</b><br>$3.600 (psicológico, recuperado hoy)<br>$3.566,30 (cierre del jueves)<br>$3.500 (psicológico)</div>
+            <div><b class="pos">Resistencias</b><br>$3.685,39 (máximo de hoy)<br>$3.689,87 (máximo del lunes)<br>$3.700 (psicológico)</div>
+          </div>
+          <div style="font-size:14px; margin-top:12px;"><b>Clave del día:</b> el cierre de hoy debe aguantar <b>$3.600</b>; si cierra sobre <b>$3.685</b>, puerta a $3.700. Próximo dato: <b>CFTC, hoy 15:30 ET</b>.</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:12px;">Fuente: parte diario del oro (vault de Obsidian), cifras intradía de la mañana. Información para decidir, no recomendación de inversión. Este bloque se actualiza con cada parte nuevo.</div>
+        </div>
+        <!-- PARTE-ORO-FIN -->
+
+        <div class="panel-box">
+          <div style="font-weight:700; margin-bottom:10px;">📌 Mi posición de hoy</div>
+          <form class="row-form" id="posForm">
+            <div><label>Fecha</label><input type="date" id="posFecha" required></div>
+            <div><label>Activo</label><input type="text" id="posActivo" value="XAU/USD" required></div>
+            <div><label>Dirección</label><select id="posDir"><option>Venta</option><option>Compra</option></select></div>
+            <div><label>Entrada</label><input type="number" step="any" id="posEntrada" placeholder="0.00" required></div>
+            <div><label>Stop Loss</label><input type="number" step="any" id="posStop" placeholder="0.00"></div>
+            <div><label>Objetivo</label><input type="number" step="any" id="posObjetivo" placeholder="0.00"></div>
+            <div><label>Nota</label><input type="text" id="posNota" placeholder="Motivo, según el parte..."></div>
+            <div><button type="submit" class="btn-add">+ Añadir</button></div>
+          </form>
+        </div>
+        <div class="panel-box">
+          <table>
+            <thead><tr><th>Fecha</th><th>Activo</th><th>Dirección</th><th>Entrada</th><th>Stop</th><th>Objetivo</th><th>Nota</th><th></th></tr></thead>
+            <tbody id="posBody"></tbody>
+          </table>
+          <div class="empty" id="posEmpty">Todavía no registras posiciones. Cuando tomes la del día, anótala aquí con su stop y su objetivo.</div>
+        </div>
+      </section>
+
+      <!-- ESTRATEGIAS -->
+      <section class="section" id="sec-estrategias">
+        <h2>Estrategias</h2>
+        <p class="desc">Las reglas de este sistema sirven para disciplina y registro, no son predicciones ni recomendaciones. Las cifras de backtest que aparecen abajo están pendientes de validación: este repositorio no incluye la serie de precios ni el método para reproducirlas.</p>
+
+        <div class="strat-grid">
+          <div class="strat">
+            <div class="top"><div class="num">1</div><h3>🚪 Puerta de tendencia MA-200</h3><span class="src">Paul Tudor Jones</span></div>
+            <p class="idea">La media de 200 días es «mi métrica para todo»: manda sobre cualquier otra señal del día.</p>
+            <ul>
+              <li><b>Precio sobre la MA-200</b> → permitido estar largo: el sesgo del día puede ser alcista.</li>
+              <li><b>Precio bajo la MA-200</b> → defensa: nada de compras tácticas nuevas, aunque los demás motores brillen.</li>
+              <li><b>Salida:</b> si el cierre pierde la MA-200, lo táctico se reduce o se cierra.</li>
+            </ul>
+            <div class="senal">🔎 <b>Dato pendiente de validar:</b> el borrador reporta +2,30% medio a 20 sesiones y 65% positivo para el estado alcista. Faltan la serie de precios y el método reproducible.</div>
+            <button class="use" data-dir="" data-nota="Estrategia 1 · Puerta MA-200">📌 Usar en mi posición de hoy</button>
+          </div>
+
+          <div class="strat">
+            <div class="top"><div class="num">2</div><h3>⚖️ Regla 5:1</h3><span class="src">Paul Tudor Jones</span></div>
+            <p class="idea">Ninguna idea táctica entra sin un premio que valga el riesgo: el objetivo debe ser al menos 5 veces el stop.</p>
+            <ul>
+              <li><b>Antes de entrar</b>, escribe entrada, stop y objetivo con los niveles del parte.</li>
+              <li><b>Si la distancia al objetivo no es ≥ 5× la distancia al stop</b>, no es una operación: es ruido. Se deja pasar.</li>
+              <li><b>Salida:</b> la que escribiste al entrar. No se mueve el stop en contra.</li>
+            </ul>
+            <div class="senal">🔎 <b>Señal en el parte:</b> soportes y resistencias del día — con ellos se mide si la idea de hoy da el 5:1 o no da.</div>
+            <button class="use" data-dir="" data-nota="Estrategia 2 · Regla 5:1">📌 Usar en mi posición de hoy</button>
+          </div>
+
+          <div class="strat">
+            <div class="top"><div class="num">3</div><h3>✍️ Salida por tesis escrita</h3><span class="src">Druckenmiller · Soros</span></div>
+            <p class="idea">Toda posición nace con su frase de invalidación escrita. Cuando la tesis muere, la posición muere — sin discutir con ella.</p>
+            <ul>
+              <li><b>Al abrir</b>, escribe la frase: «esto se cierra si la Fed hace X / si el rendimiento real supera Y / si se pierde el soporte Z».</li>
+              <li><b>Druckenmiller</b> vendió todo su oro en una noche (elecciones de 2016) porque su frase ya estaba escrita desde 2015.</li>
+              <li><b>Salida:</b> al cumplirse la frase, se sale el mismo día, aunque el precio aún no toque el stop.</li>
+            </ul>
+            <div class="senal">🔎 <b>Señal en el parte:</b> la «clave del día» y el escenario alterno — ahí viene escrita tu invalidación de hoy.</div>
+            <button class="use" data-dir="" data-nota="Estrategia 3 · Salida por tesis">📌 Usar en mi posición de hoy</button>
+          </div>
+
+          <div class="strat">
+            <div class="top"><div class="num">4</div><h3>🎯 Rebote en sobreventa extrema</h3><span class="src">Backtest reportado · sin datos adjuntos</span></div>
+            <p class="idea">El RSI-14 bajo 30 puede servir como condición de estudio, pero este repositorio no contiene datos ni método para comprobar las cifras del backtest reportado (+5,10% medio a 20 sesiones, 86% positivo y 14 señales).</p>
+            <ul>
+              <li><b>Entrada:</b> solo con RSI &lt; 30 <b>y</b> confirmación (el cierre recupera un nivel del parte). Sin confirmación, no hay rebote: hay caída libre.</li>
+              <li><b>Tamaño medido:</b> la señal es rara — solo 14 días en 5 años — y llega en plena caída. Paciencia y stop bajo el mínimo.</li>
+              <li><b>Salida:</b> al volver el RSI a zona neutral o al alcanzar la primera resistencia fuerte.</li>
+            </ul>
+            <div class="live">ℹ️ <b>Sin datos en vivo:</b> el valor manual anterior fue RSI-14 en 31,86 al 26-nov-2026. Este dato puede estar desactualizado. Actualízalo con una fuente verificable antes de usarlo para analizar una posición.</div>
+            <div class="senal">🔎 <b>Señal en el parte:</b> el RSI-14 del bloque 1, junto a los soportes del día.</div>
+            <button class="use" data-dir="Compra" data-nota="Estrategia 4 · Rebote sobreventa (RSI &lt; 30)">📌 Usar en mi posición de hoy</button>
+          </div>
+
+          <div class="strat">
+            <div class="top"><div class="num">5</div><h3>🎒 Dos bolsillos</h3><span class="src">Dalio · Rick Rule</span></div>
+            <p class="idea">El dinero se separa en dos bolsillos con reglas distintas, para que el ruido de un día no toque la posición de fondo.</p>
+            <ul>
+              <li><b>Núcleo:</b> 10–15% fijo de la cartera en oro (el rango que documentan Dalio y Schiff). Se rebalancea <b>trimestralmente</b>; el parte diario <b>no lo toca</b>.</li>
+              <li><b>Táctico:</b> bolsa pequeña y separada, gobernada solo por las estrategias 1 a 4.</li>
+              <li><b>Bancos centrales:</b> deciden el tamaño del núcleo en una revisión mensual tranquila — nunca son gatillo para operar un martes.</li>
+            </ul>
+            <div class="senal">🔎 <b>Señal en el parte:</b> los bloques 3 (flujos y bancos centrales) alimentan la revisión mensual del núcleo, no la posición del día.</div>
+            <button class="use" data-dir="" data-nota="Estrategia 5 · Dos bolsillos">📌 Usar en mi posición de hoy</button>
+          </div>
+        </div>
+
+        <div class="warn-box">⚠️ <b>Lo que NO se copia (de tu propia nota 10):</b> el tamaño sin regla de salida de Paulson le costó −65% en seis meses de 2013 con la tesis «correcta» a largo plazo; la concentración del ~98% de Sprott es su oficio, no una cartera; y operar el núcleo a diario no lo hacía ni Druckenmiller: sus campañas duraban 12–18 meses. El parte diario sirve para vigilar condiciones y disciplina.<br><span style="color:var(--muted); font-size:12.5px;">Estas estrategias son las reglas de tu sistema, con fines de disciplina y registro. No son una recomendación de inversión.</span></div>
+      </section>
+
+
+      <!-- HISTORIAL -->
+      <section class="section" id="sec-historial">
+        <h2>Historial por activo</h2>
+        <p class="desc">10 años (2016–2026) de los días que de verdad movieron cada precio: qué pasó ese día y por qué influyó. Elige el activo en el submenú «Historial» del menú lateral. Cada evento trae su fuente; las cifras llevan ~ cuando las fuentes difieren ligeramente. Es historia para aprender los motores de cada mercado, no una recomendación.</p>
+
+        <div class="hist-panel active" id="hist-oro">
+          <h3>🥇 Oro (XAU/USD)</h3>
+          <p class="hist-intro">El metal refugio por excelencia, en dólares por onza troy. En 10 años pasó de ~$1.250 (nov-2016) a su récord histórico de enero de 2026; a finales de noviembre de 2026 cotiza en la zona de $3.470, según tu parte diario.</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">24 JUN 2016</div><div class="tl-body"><span class="mv up">+~8% en 2 días</span><b>Brexit.</b> El Reino Unido votó salir de la UE contra todo pronóstico; la libra se desplomó y la huida a refugios llevó al oro de $1.255 a ~$1.357, su máximo en más de dos años. <a class="src" href="https://goldtrack.io/timeline/gold" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">15 DIC 2016</div><div class="tl-body"><span class="mv dn">Mínimo: ~$1.123</span><b>El suelo de la década.</b> Tras ganar Trump, el mercado apostó por estímulo y subidas de tasas; la Fed subió tipos el 14-dic y el oro tocó su nivel más bajo de todo el período. <a class="src" href="https://upordowngold.com/learn/gold-price-history-2016-2026/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">25 JUN 2019</div><div class="tl-body"><span class="mv up">Rompe $1.400</span><b>Fin de un rango de 6 años.</b> La Fed giró hacia los recortes en plena guerra comercial EE. UU.–China y con la deuda mundial de rendimiento negativo creciendo; en septiembre llegó a ~$1.557. <a class="src" href="https://www.goldtickr.com/gold-price-chart-analysis-last-10-years-4/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">16 MAR 2020</div><div class="tl-body"><span class="mv dn">Caída a ~$1.451</span><b>Pánico COVID.</b> En la liquidación general se vendió hasta el oro para conseguir efectivo; el rebote (+5,0% el 24-mar) llegó cuando la Fed anunció compras ilimitadas de activos el 23-mar. <a class="src" href="https://upordowngold.com/learn/gold-price-history-2016-2026/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">7 AGO 2020</div><div class="tl-body"><span class="mv up">Récord: $2.075</span><b>Primeros $2.000 de la historia.</b> Tasas reales negativas, dólar débil y estímulo masivo por la pandemia. Días después, el 11-ago, cayó −5,7% en un día con noticias de la vacuna rusa. <a class="src" href="https://goldpricetools.com/guides/gold-price-history" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 NOV 2020</div><div class="tl-body"><span class="mv dn">−4,52% en un día</span><b>La vacuna de Pfizer.</b> Eficacia del ~90% contra el COVID: el dinero salió de los refugios hacia los activos de riesgo ante la expectativa de normalización. <a class="src" href="https://upordowngold.com/learn/gold-price-history-2016-2026/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">8 MAR 2022</div><div class="tl-body"><span class="mv up">Pico ~$2.070</span><b>Invasión de Ucrania.</b> La invasión rusa (24-feb) y las sanciones dispararon la demanda de refugio y de materias primas; el oro igualó prácticamente el máximo de 2020. <a class="src" href="https://blog.pricegroup.com/2026/11/12/the-odd-couple-manic-metals-report-11-12-2026/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">26 SEP 2022</div><div class="tl-body"><span class="mv dn">Mínimo ~$1.615</span><b>La Fed más dura en décadas.</b> +450 pb en menos de un año contra la inflación; dólar en máximos de 20 años y tasas reales positivas: −~22% desde marzo. <a class="src" href="https://www.thestatesman.com/business/in-2022-gold-had-more-ups-and-downs-than-a-roller-coaster-ride-1503141599.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 MAR 2023</div><div class="tl-body"><span class="mv up">+~13% en 3 semanas</span><b>Crisis bancaria.</b> La quiebra de Silicon Valley Bank (10-mar) y el rescate de Credit Suisse desataron el miedo sistémico y la huida al refugio, de ~$1.810 a más de $2.000. <a class="src" href="https://goldtrack.io/timeline/gold" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">7 OCT 2023</div><div class="tl-body"><span class="mv up">+~10% en semanas</span><b>Guerra en Gaza.</b> El ataque de Hamás a Israel reactivó la prima geopolítica; el oro subió con fuerza incluso con el dólar cerca de sus máximos del ciclo. <a class="src" href="https://blog.pricegroup.com/2026/11/12/the-odd-couple-manic-metals-report-11-12-2026/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">31 OCT 2024</div><div class="tl-body"><span class="mv up">Récord ~$2.790</span><b>El año de los bancos centrales.</b> Compras récord (más de 1.000 toneladas, lideradas por China y Polonia), guerras activas e inicio de los recortes de la Fed: el año cerró +~27% con unos 40 máximos históricos. <a class="src" href="https://www.goldiraplanet.com/articles/gold-price-history" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">22 ABR 2025</div><div class="tl-body"><span class="mv up">Tocó $3.500</span><b>Caos arancelario.</b> El 14-mar ya había cruzado los $3.000 por primera vez. Los aranceles del «Día de la Liberación» de Trump (2-abr) y la escalada con China (145% frente a 125%) provocaron una estampida al refugio; 2025 fue su mejor año desde 1979 (+~65%). <a class="src" href="https://stonexbullion.com/en/blog/what-was-the-highest-price-for-gold/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">21 OCT 2025</div><div class="tl-body"><span class="mv dn">−5,31% en un día</span><b>Corrección tras el récord.</b> Un día después del máximo de ~$4.379 (17-oct, en plena escalada por las tierras raras), una venta masiva corrigió el exceso: −~9% acumulado hasta el 4-nov. <a class="src" href="https://www.nasdaq.com/articles/gold-price-2025-year-end-review" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">29 ENE 2026</div><div class="tl-body"><span class="mv in">Récord absoluto ~$5.595</span><b>La cima parabólica y el golpe.</b> La tensión EE. UU.–Irán y las amenazas arancelarias coronaron la subida; al día siguiente, el nombramiento de Kevin Warsh para la Fed (perfil más duro) provocó la mayor caída diaria de la década (−~9%) y una corrección que llevó al oro a ~$3.994 a finales de junio (−~29%). <a class="src" href="https://www.goldiraplanet.com/articles/gold-price-history" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-plata">
+          <h3>🥈 Plata (XAG/USD)</h3>
+          <p class="hist-intro">Metal mitad industrial (paneles solares, electrónica, vehículos eléctricos) y mitad monetario, mucho más volátil que el oro: arrancó el período en ~$17 (nov-2016) y vivió un ciclo extremo que la llevó de ~$12 a más de $120 y de vuelta; el 26-nov-2026 cotizaba en ~$41,56 según las series consultadas.</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">4 JUL 2016</div><div class="tl-body"><span class="mv up">+7% intradía</span><b>Rompe los $21.</b> El voto del Brexit disparó las compras de metales preciosos, con una oleada adicional de cobertura de cortos en China; la plata subió más que el oro, como es habitual en los movimientos bruscos. <a class="src" href="https://www.brecorder.com/news/307892/gold-pushes-back-towards-2-year-high-silver-crosses-21oz" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">18 MAR 2020</div><div class="tl-body"><span class="mv dn">Mínimo: ~$11,8</span><b>El suelo de la década (−~35% en 4 semanas).</b> En el pánico del COVID se liquidó todo en busca de efectivo y la demanda industrial se desplomó con los confinamientos; precio más bajo desde 2009. <a class="src" href="https://goldiew.com/guide/silver-price-history-30-years/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">7 AGO 2020</div><div class="tl-body"><span class="mv up">Máximo ~$29</span><b>+~150% desde el suelo de marzo.</b> Estímulo fiscal y monetario masivo, tasas a cero y recuperación industrial: la plata amplificó la subida récord del oro en el mismo verano. <a class="src" href="https://goldiew.com/guide/silver-price-history-30-years/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">1 FEB 2021</div><div class="tl-body"><span class="mv up">Superó los $30</span><b>El «silver squeeze» de Reddit.</b> Tras el caso GameStop, el foro WallStreetBets impulsó una compra masiva minorista de plata física y del ETF SLV: máximo de ocho años que se desinfló en días, de vuelta a $25–28. <a class="src" href="https://www.vantagemarketsea.com/academy/silver-price-over-time/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">1 SEP 2022</div><div class="tl-body"><span class="mv dn">Mínimo ~$17,5–18</span><b>Doble castigo.</b> El ciclo agresivo de subidas de la Fed y el dólar en máximos de dos décadas golpearon a la plata como metal monetario y por el miedo a la recesión industrial. <a class="src" href="https://www.thestatesman.com/business/in-2022-gold-had-more-ups-and-downs-than-a-roller-coaster-ride-1503141599.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">31 OCT 2024</div><div class="tl-body"><span class="mv up">Media de ~$32,4</span><b>Su mejor octubre en más de una década.</b> Demanda récord de la industria solar, déficit estructural de oferta y el tirón del oro devolvieron a la plata por encima de los $30. <a class="src" href="https://www.vantagemarketsea.com/academy/silver-price-over-time/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 OCT 2025</div><div class="tl-body"><span class="mv up">Rompe los $50</span><b>Primera vez desde 1980.</b> Cuarto año consecutivo de déficit de oferta, inventarios de Londres en mínimos y una demanda industrial (solar, EV, IA) sin sustituto estrangularon el mercado físico; 2025 cerró con la plata +~140%. <a class="src" href="https://www.goldbuzz.com/p/2025-the-year-gold-and-silver-went-parabolic" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">29 DIC 2025</div><div class="tl-body"><span class="mv dn">Desplome −17% en 72 h</span><b>Fin de la euforia de fin de año.</b> Había tocado ~$84–86 intradía y la subida parabólica se quedó sin compradores: el apalancamiento se deshizo de golpe y el año cerró en ~$71, anticipando la volatilidad extrema de enero. <a class="src" href="https://www.moneymetals.com/price/silver-price-all-time-high" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">29 ENE 2026</div><div class="tl-body"><span class="mv in">Récord absoluto: $121,67</span><b>El gran squeeze.</b> El 23-ene ya había cruzado los $100 por primera vez. Déficits de oferta por quinto año, tasas de arrendamiento del metal físico disparadas y compras de ETF y monedas, según el Silver Institute. <a class="src" href="https://www.moneymetals.com/price/silver-price-all-time-high" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">30 ENE 2026</div><div class="tl-body"><span class="mv dn">−24,05% en un día</span><b>El «Warsh Shock», su peor día desde 1980.</b> El nombramiento de Kevin Warsh para la Fed endureció las expectativas de tasas, el COMEX subió los márgenes y las liquidaciones forzadas barrieron las posiciones apalancadas (cierre ~$88; suelo de corto plazo en ~$64 a principios de febrero). <a class="src" href="https://texmetals.com/all-news/precious-metals-market-recap-q1-2026" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 JUL 2026</div><div class="tl-body"><span class="mv dn">~$56,8 (−~53% desde el récord)</span><b>El desapalancamiento largo.</b> Tras estallar la burbuja especulativa, el cierre del estrecho de Ormuz por Irán (feb-2026) encareció la energía y la inflación, endureciendo la narrativa de tasas durante meses. <a class="src" href="https://markets.financialcontent.com/stocks/article/marketminute-2026-2-20-the-silver-rollercoaster-of-2026-from-triple-digit-peaks-to-an-80-new-normal" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-wti">
+          <h3>🛢️ Petróleo WTI</h3>
+          <p class="hist-intro">La referencia del crudo de EE. UU. (entrega en Cushing, Oklahoma): ~$45–49 por barril en nov-2016, cerró en $83,68 el 25-nov-2026, tras tocar ~$130 en 2022 y un mínimo histórico negativo en 2020.</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">30 NOV 2016</div><div class="tl-body"><span class="mv up">+~9,3% en un día</span><b>Primer recorte de la OPEP desde 2008.</b> 1,2 millones de b/d menos (a 32,5 millones desde ene-2017) para absorber el exceso de oferta; Rusia y otros no-OPEP se sumarían con 0,6 millones más. Cierre ~$49,44. <a class="src" href="https://www.nbk.com/dam/jcr:cbe60c2a-cad9-4c62-90e8-066269f03502/NBKKuwaitEconomicBriefDecember2016.pdf" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 DIC 2018</div><div class="tl-body"><span class="mv dn">−~44% en 3 meses</span><b>Excedente por todos lados.</b> Producción récord simultánea de EE. UU., Rusia y Arabia Saudita, exenciones a compradores de crudo iraní pese a las sanciones y temor a menor demanda: de $76,41 (3-oct) a ~$42,5. <a class="src" href="https://www.eia.gov/petroleum/weekly/archive/2019/190109/includes/analysis_print.php" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">16 SEP 2019</div><div class="tl-body"><span class="mv up">+14,7% en un día</span><b>Ataque a Arabia Saudita.</b> Los drones y misiles del 14-sep contra Abqaiq y Khurais dejaron fuera 5,7 millones de b/d (más de la mitad de la producción saudí, ~5% de la oferta mundial). Precio: $62,90. <a class="src" href="https://www.aljazeera.com/economy/2019/9/17/price-of-oil-jumps-nearly-15-percent-amid-middle-east-volatility" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 MAR 2020</div><div class="tl-body"><span class="mv dn">−24,6% en un día</span><b>Guerra de precios.</b> Rusia rechazó el recorte extra de la OPEP+ el 6-mar y Arabia Saudita respondió con rebajas récord y más producción, justo cuando el COVID ya destruía la demanda. Precio: $31,13. <a class="src" href="https://www.business-standard.com/article/international/oil-plunges-25-hit-by-erupting-saudi-arabia-russia-oil-price-war-120031000051_1.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">18 MAR 2020</div><div class="tl-body"><span class="mv dn">~−24% (a $20,37)</span><b>Mínimo desde 2002.</b> Arabia Saudita confirmó que bombearía a niveles récord «durante meses» mientras los confinamientos evaporaban la demanda mundial de combustible. <a class="src" href="https://www.rigzone.com/news/wire/oils_recent_plunge_signals_no_end_in_sight_for_meltdown-18-mar-2020-161436-article/?amp" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 ABR 2020</div><div class="tl-body"><span class="mv in">CIERRE EN −$37,63</span><b>Precios negativos por primera vez en la historia.</b> Con la demanda colapsada y el almacenamiento de Cushing prácticamente lleno, los tenedores del contrato de mayo (vencía al día siguiente) pagaron por deshacerse de barriles que no podían recibir físicamente. Mínimo intradía: −$40,32. <a class="src" href="https://www.everycrsreport.com/files/20200422_IN11354_22b1bbff637649ec03f45eb517f4b78a0a42c059.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 NOV 2020</div><div class="tl-body"><span class="mv up">+8,5% en un día</span><b>La vacuna.</b> Pfizer y BioNTech anunciaron una eficacia superior al 90%: expectativa de recuperación de viajes y demanda de combustible. Precio: $40,29. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/energy-commodities/oil-soars-8-promising-covid-19-vaccine-results" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">8 MAR 2022</div><div class="tl-body"><span class="mv up">Máximo ~$130,50</span><b>Guerra en Ucrania.</b> Tras la invasión rusa (24-feb), EE. UU. anunció el veto a las importaciones de petróleo ruso y el mercado temió perder millones de barriles por las sanciones, con inventarios ya bajos. Mayor nivel desde 2008. <a class="src" href="https://www.eia.gov/petroleum/weekly/archive/2022/220309/includes/analysis_print.php" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 DIC 2022</div><div class="tl-body"><span class="mv dn">Mínimo del año ~$71</span><b>Adiós a la subida de 2022 (−~45% desde marzo).</b> Los temores de recesión por las subidas de la Fed y la débil demanda china pesaron más que el embargo y el tope de $60 al crudo ruso. <a class="src" href="https://bworld-x.com/wp-content/uploads/2022/12/S1-5-WMkets-12.12-fc.pdf" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 MAR 2023</div><div class="tl-body"><span class="mv dn">Mínimo de 15 meses ~$64,5</span><b>Miedo bancario.</b> La quiebra de SVB y el rescate de Credit Suisse (absorbido por UBS) dispararon el temor a una recesión que recortara la demanda de crudo (~−13% en la semana previa). <a class="src" href="https://energy.economictimes.indiatimes.com/news/oil-and-gas/oil-hits-lowest-since-2021-on-banking-fears/98810400" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">3 ABR 2023</div><div class="tl-body"><span class="mv up">+6,3% en un día</span><b>Recorte sorpresa de la OPEP+.</b> El domingo 2-abr anunció un recorte voluntario adicional de ~1,16 millones de b/d desde mayo, cuando el mercado esperaba política sin cambios. Precio: $80,42. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/oil-leaps-6-opec-shocks-markets-cutting-output-target" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">8 ABR 2025</div><div class="tl-body"><span class="mv dn">Cierre en $59,58</span><b>Primer cierre bajo $60 desde 2021.</b> Los aranceles «recíprocos» de Trump (2-abr) desataron temores de recesión y la OPEP+ agravó la caída anunciando un aumento de producción mayor de lo previsto (411.000 b/d para mayo). <a class="src" href="https://www.rigzone.com/news/wire/wti_falls_below_60_amid_trade_war_escalation-08-apr-2025-180175-article/?rss=true" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">13 JUN 2025</div><div class="tl-body"><span class="mv up">+~7,3% en un día</span><b>Israel ataca a Irán.</b> Bombardeos contra instalaciones nucleares y militares iraníes: temor a represalias que interrumpieran los flujos de Oriente Medio o el estrecho de Ormuz. Precio: $72,98. <a class="src" href="https://www.barchart.com/story/news/32859472/asian-shares-slide-while-oil-prices-surge-after-israel-s-strike-on-iran" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">23 JUN 2025</div><div class="tl-body"><span class="mv dn">−7,2% en un día</span><b>La prima de guerra se evapora.</b> La represalia iraní contra una base de EE. UU. en Catar fue limitada y no tocó infraestructura petrolera; Trump anunció un alto el fuego Israel–Irán. Precio: $68,51. <a class="src" href="https://www.timesnownews.com/business-economy/economy/crude-oil-prices-dip-below-pre-conflict-levels-amid-fragile-iran-israel-ceasefire-article-152146021" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-sp500">
+          <h3>📈 S&amp;P 500</h3>
+          <p class="hist-intro">El índice de las 500 mayores empresas cotizadas de EE. UU.: rondaba los ~2.100–2.200 puntos en nov-2016, marcó su récord de cierre (7.818,93) el 6-oct-2026 y cerró en 7.201,09 el 24-nov-2026, en corrección de ~−7,9% desde el récord.</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">5 FEB 2018</div><div class="tl-body"><span class="mv dn">−4,10%</span><b>«Volmageddon».</b> Un dato salarial fuerte avivó el miedo a inflación y subidas de la Fed; el VIX saltó ~115% en un día y los productos inversos de volatilidad (como XIV) implosionaron, forzando ventas en cadena. Cierre: 2.648,94. <a class="src" href="https://www.business-standard.com/article/reuters/wall-street-plunges-s-p-500-erases-2018-s-gains-118020600075_1.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 DIC 2018</div><div class="tl-body"><span class="mv dn">−~20% desde septiembre</span><b>Mercado bajista navideño.</b> Las cuatro subidas de la Fed en 2018, la guerra comercial con China y el temor a una desaceleración provocaron la peor caída navideña en décadas; el rebote empezó tras la pausa de la Fed en enero de 2019. <a class="src" href="https://dev.batesgroup.com/publications/Bates_Research_Bear_Markets_Black_Swan_Events_and_Volatility.pdf" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 MAR 2020</div><div class="tl-body"><span class="mv dn">−7,60%</span><b>«Lunes Negro I».</b> La propagación del COVID se combinó con el estallido esa misma mañana de la guerra de precios del petróleo Arabia Saudita–Rusia; se activó el cortocircuitos de la bolsa. Cierre: 2.746,56. <a class="src" href="https://en.wikipedia.org/wiki/List_of_largest_daily_changes_in_the_S&P_500_Index" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">12 MAR 2020</div><div class="tl-body"><span class="mv dn">−9,51%</span><b>«Jueves Negro».</b> La OMS había declarado la pandemia el 11-mar, Trump suspendió los viajes desde Europa y el BCE decepcionó al no recortar tipos: pánico vendedor. Cierre: 2.480,64. <a class="src" href="https://en.wikipedia.org/wiki/Black_Monday_(2020)" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">16 MAR 2020</div><div class="tl-body"><span class="mv dn">−11,98%</span><b>El peor día desde 1987.</b> Ni el recorte de emergencia de la Fed a 0% anunciado el domingo calmó al mercado ante los confinamientos masivos en EE. UU. y Europa. Cierre: 2.386,13. <a class="src" href="https://www.rappler.com/business/254794-updates-global-stock-markets-march-16-2020/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">23 MAR 2020</div><div class="tl-body"><span class="mv in">Suelo del crash: 2.237,40</span><b>−34% en 23 sesiones.</b> Ese mismo día la Fed anunció compras ilimitadas de activos (QE infinito) y líneas de crédito a empresas: el giro que marcó el fondo del mercado. <a class="src" href="https://www.wvlt.tv/bankrate-article/2024/08/05/biggest-stock-market-crashes-us-history/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 MAR 2020</div><div class="tl-body"><span class="mv up">+9,38%</span><b>Rebote histórico.</b> La expectativa de un acuerdo inminente en el Congreso para el paquete de estímulo de ~$2 billones (ley CARES) desató compras masivas tras semanas de pánico. <a class="src" href="https://en.wikipedia.org/wiki/List_of_largest_daily_changes_in_the_S&P_500_Index" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">13 SEP 2022</div><div class="tl-body"><span class="mv dn">−4,32%</span><b>IPC caliente.</b> La inflación de agosto salió más alta de lo esperado (8,3% anual; subyacente 6,3%), enterrando la esperanza de que la Fed frenara y confirmando otra subida de 75 pb. La peor caída desde junio de 2020. <a class="src" href="https://www.koreatimes.co.kr/world/20220914/wall-street-posts-biggest-plunge-in-two-years-following-inflation-data" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">10 NOV 2022</div><div class="tl-body"><span class="mv up">+5,54%</span><b>IPC frío.</b> La inflación de octubre fue más suave (7,7% anual) y el mercado apostó a que la Fed moderaría las subidas: el gran rebote dentro del mercado bajista de 2022. <a class="src" href="https://boringedge.com/90-percent-biggest-spx-rallies-happened-bear-markets/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 AGO 2024</div><div class="tl-body"><span class="mv dn">−3,00%</span><b>El lunes del «carry trade».</b> El Banco de Japón subió tipos el 31-jul y el yen se disparó, deshaciendo en masa las posiciones financiadas en yenes; un débil empleo en EE. UU. sumó miedo a recesión y el Nikkei cayó −12,4%. <a class="src" href="https://www.rappler.com/business/updates-global-stock-markets-currencies-oil-prices-august-5-2024/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">4 ABR 2025</div><div class="tl-body"><span class="mv dn">~−6,0% (~−10,5% en 2 días)</span><b>El golpe arancelario.</b> Los aranceles «recíprocos» del «Día de la Liberación» de Trump (2-abr), más altos de lo temido, y la represalia china del 34% hicieron temer una guerra comercial global: ~$6,6 billones de valor borrados. <a class="src" href="https://www.fool.com/investing/2025/04/06/stock-market-crushed-by-president-trumps-tariffs/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 ABR 2025</div><div class="tl-body"><span class="mv up">+9,52%</span><b>La pausa de Trump.</b> Anunció 90 días de pausa en los aranceles recíprocos para los países que no habían tomado represalias (manteniendo la presión sobre China) y el mercado explotó al alza en horas: entre las mayores subidas desde la Segunda Guerra Mundial. <a class="src" href="https://en.wikipedia.org/wiki/List_of_largest_daily_changes_in_the_S&P_500_Index" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">6 OCT 2026</div><div class="tl-body"><span class="mv in">Récord de cierre: 7.818,93</span><b>La cima del rally de la IA.</b> Culminación del impulso de las acciones de inteligencia artificial y semiconductores, que dejó al índice en valoraciones exigentes y vulnerable a una corrección. <a class="src" href="https://www.nacionale.com/en/articles/why-is-the-stock-market-crashing-sp-500-dow-correction-close-november-20" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 NOV 2026</div><div class="tl-body"><span class="mv dn">−3,70% (semana −8,61%)</span><b>Corrección oficial (−11,6% desde el récord).</b> Venta masiva en acciones de IA por temores de burbuja (Nvidia encadenó siete caídas y la acción de Anthropic se desplomó tras su debut bursátil), agravada por unas actas de la Fed de tono duro. El lunes 23-nov rebotó ~+4,73%. <a class="src" href="https://tcmwealthadvisors.com/blog/week-in-perspective-or-a-brutal-week-on-wall-street-nasdaq-falls-10-and-turns-negative-for-2026-23-november-26" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-nasdaq">
+          <h3>💻 Nasdaq 100</h3>
+          <p class="hist-intro">Las 100 mayores empresas no financieras del Nasdaq, dominado por las grandes tecnológicas: de ~4.900 puntos a finales de nov-2016 a ~26.000 a finales de nov-2026 (~+435% en 10 años), aunque cerró la semana del 20-nov-2026 entre ~17% y ~20% bajo su récord del 6-oct-2026. Nota: en algunos eventos la prensa reportó el Nasdaq Composite (índice hermano, movimientos casi idénticos); se indica en cada caso.</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">10 OCT 2018</div><div class="tl-body"><span class="mv dn">~−4,1% (Composite)</span><b>Venta masiva de tecnología.</b> El rendimiento del bono a 10 años se disparó a máximos de 7 años (~3,25%) tras las subidas de la Fed: Amazon −6,2% y Netflix −8,4% en la sesión. Peor día desde junio de 2016. <a class="src" href="https://vir.com.vn/dow-ends-brutal-session-with-32-loss-nasdaq-41-63021.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 DIC 2018</div><div class="tl-body"><span class="mv dn">−~23% desde el récord</span><b>Mercado bajista.</b> La Fed subió tasas el 19-dic pese a la caída, sumado a la guerra comercial con China y al temor a una desaceleración global: mínimo del ciclo desde el máximo del 29-ago-2018. <a class="src" href="https://vantage-ledger.com/articles/nasdaq-100-historical-returns" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 MAR 2020</div><div class="tl-body"><span class="mv dn">~−7,3% (Composite)</span><b>«Lunes Negro I».</b> La guerra de precios del petróleo Arabia Saudita–Rusia (crudo ~−25%) mientras el COVID se expandía; la apertura activó el interruptor automático por primera vez desde 1997. <a class="src" href="https://www.thestreet.com/markets/stock-market-today-dow-jones-coronavirus-oil-prices-030920" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">16 MAR 2020</div><div class="tl-body"><span class="mv dn">~−12,2% (NDX)</span><b>La mayor caída de su historia.</b> «Lunes Negro II»: ni el recorte de emergencia de la Fed a 0% del domingo calmó al mercado ante los cierres masivos por la pandemia; peor día en Wall Street desde 1987. <a class="src" href="https://www.dtnpf.com/agriculture/web/ag/news/world-policy/article/2020/03/16/global-stock-markets-us-futures-fall" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">19 NOV 2021</div><div class="tl-body"><span class="mv dn">Techo: luego −35,6%</span><b>Comienza el mercado bajista tech.</b> La inflación más alta en 40 años y la subida de tasas más rápida desde los 80 castigaron las valoraciones «growth» infladas en la pandemia; 2022 cerró −33,0% y el récord no se recuperó hasta dic-2023. <a class="src" href="https://vantage-ledger.com/articles/nasdaq-100-historical-returns" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">13 SEP 2022</div><div class="tl-body"><span class="mv dn">~−5,2% (Composite)</span><b>IPC caliente.</b> La inflación de agosto (8,3% anual, subyacente 6,3%) enterró la esperanza de una Fed más suave y reforzó las apuestas a otra subida de 75 pb. Mayor caída desde junio de 2020. <a class="src" href="https://www.koreatimes.co.kr/world/20220914/wall-street-posts-biggest-plunge-in-two-years-following-inflation-data" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">10 NOV 2022</div><div class="tl-body"><span class="mv up">~+7,4% (Composite)</span><b>IPC frío.</b> La inflación de octubre se enfrió (7,7% anual) y el mercado apostó a que la Fed frenaría las subidas; Nvidia saltó ~14% y Meta ~10% en la sesión. <a class="src" href="https://business.inquirer.net/372343/wall-street-ends-sharply-higher-on-sign-of-cooling-inflation/amp" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">25 MAY 2023</div><div class="tl-body"><span class="mv up">~+2,5% (NDX)</span><b>Nvidia enciende la era de la IA.</b> Pronosticó ingresos de ~$11.000 millones frente a ~$7.200 esperados y sumó ~$184.000 millones de valor en una sesión (+24,4%); el índice cerró 2023 con +53,8%. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/chip-giant-nvidia-nears-trillion-dollar-status-ai-bet" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 AGO 2024</div><div class="tl-body"><span class="mv dn">~−3,4% (Composite)</span><b>Lunes negro global.</b> El Nikkei se desplomó 12,4% (su peor día desde 1987) por el desarme del «carry trade» en yenes tras la subida del Banco de Japón, combinado con un empleo débil en EE. UU. <a class="src" href="https://www.rappler.com/business/updates-global-stock-markets-currencies-oil-prices-august-5-2024/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">27 ENE 2025</div><div class="tl-body"><span class="mv dn">~−3,1% (Composite)</span><b>El «shock DeepSeek».</b> La startup china presentó un modelo de IA de bajo costo que puso en duda el gigantesco gasto en chips: Nvidia −17%, ~$589.000 millones perdidos en un día, la mayor pérdida diaria de una empresa en la historia. <a class="src" href="https://www.nst.com.my/amp/business/corporate/2025/01/1167226/nasdaq-drops-3pct-chinas-deepseek-ai-model-hits-tech-shares" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">4 ABR 2025</div><div class="tl-body"><span class="mv dn">~−5,8% (Composite)</span><b>Entrada en mercado bajista (~−22% desde dic-2024).</b> China respondió a los aranceles del «Día de la Liberación» con un arancel del 34% a todos los productos de EE. UU.: temor a una guerra comercial total. <a class="src" href="https://nnpa.org/markets-plunge-after-china-retaliates-against-white-house-tariffs/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 ABR 2025</div><div class="tl-body"><span class="mv up">~+12,2% (Composite)</span><b>La segunda mayor subida de su historia.</b> Trump anunció una pausa de 90 días en los aranceles recíprocos y el alivio disparó las compras: Nvidia +18,7% y Apple +15,3% en la sesión. <a class="src" href="https://en.wikipedia.org/wiki/List_of_largest_daily_changes_in_the_Nasdaq_Composite" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 NOV 2026</div><div class="tl-body"><span class="mv dn">~−6,4% (NDX)</span><b>La peor caída desde marzo de 2020.</b> Dos días después de que los demócratas ganaran ambas cámaras en las elecciones de medio término, el mercado temió una regulación más dura de la IA y frenos a los centros de datos (rechazados en 40 de 41 consultas locales); los semiconductores se hundieron 12,3%. <a class="src" href="https://www.marketwatch.com/story/tech-stocks-log-worst-day-since-2020-as-carnage-comes-to-the-ai-trade-56109845" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 NOV 2026</div><div class="tl-body"><span class="mv dn">~−5,6% (NDX), semana ~−10%</span><b>Se profundiza el desplome de la IA.</b> Nvidia cayó ~14% en el día (acumula ~un tercio de pérdida en dos semanas, en medio de la salida de Jensen Huang como CEO) y ni el histórico IPO de Anthropic del día anterior frenó las ventas; el NDX cerró ~19,8% bajo su récord, al borde del mercado bajista. <a class="src" href="https://www.investopedia.com/stock-market-today-dow-jones-s-and-p-500-nasdaq-11202026-12266027" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-dow">
+          <h3>🏭 Dow Jones (DJIA)</h3>
+          <p class="hist-intro">El índice de 30 grandes empresas «blue chip» de EE. UU. (industriales, financieras y de consumo, con algunas tecnológicas): de ~19.100 puntos a finales de nov-2016 a 48.147 el 20-nov-2026, tras cerrar sobre 51.600 apenas el 16-nov y entrar en corrección.</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">25 ENE 2017</div><div class="tl-body"><span class="mv up">Primer cierre sobre 20.000</span><b>El «rally Trump».</b> Culminación de la apuesta postelectoral a recortes de impuestos, desregulación y gasto en infraestructura del nuevo gobierno. Cierre: 20.068 (+0,8%). <a class="src" href="https://www.business-standard.com/article/reuters/dow-tops-20-000-on-revitalised-trump-trade-earnings-117012600075_1.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 FEB 2018</div><div class="tl-body"><span class="mv dn">−1.175 puntos (−4,6%)</span><b>«Volmageddon».</b> La mayor caída en puntos hasta esa fecha: un dato de salarios fuerte encendió el temor a inflación y subidas más rápidas de la Fed, y la liquidación de los productos inversos de volatilidad aceleró las ventas automáticas. <a class="src" href="https://www.marketplace.org/story/2018/02/05/dow-plunges-1175-points-worst-day-stocks-2011" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">10 OCT 2018</div><div class="tl-body"><span class="mv dn">−832 puntos (−3,2%)</span><b>Bonos y guerra comercial.</b> El rendimiento del Tesoro a 10 años en máximos de 7 años y el conflicto con China provocaron la peor sesión en ocho meses; el Dow encadenó su quinta caída seguida. <a class="src" href="https://vir.com.vn/dow-ends-brutal-session-with-32-loss-nasdaq-41-63021.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 MAR 2020</div><div class="tl-body"><span class="mv dn">−2.014 puntos (−7,8%)</span><b>«Lunes Negro I».</b> La guerra de precios del petróleo (crudo ~−25%) se sumó al avance del COVID; el S&amp;P 500 activó el interruptor automático minutos después de la apertura. <a class="src" href="https://www.wcmu.org/national-world-news/2020-03-09/dow-dives-more-than-2-000-points-steep-market-slide-triggered-trading-halt" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">12 MAR 2020</div><div class="tl-body"><span class="mv dn">−2.353 puntos (−10,0%)</span><b>«Jueves Negro».</b> La OMS había declarado la pandemia el día anterior y Trump suspendió los viajes desde Europa; peor caída porcentual desde 1987 hasta ese momento. <a class="src" href="https://en.wikipedia.org/wiki/Black_Thursday_(2020)" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">16 MAR 2020</div><div class="tl-body"><span class="mv dn">−2.997 puntos (−12,9%)</span><b>La mayor caída en puntos de su historia.</b> Y la peor porcentual desde 1987: el recorte de emergencia de la Fed a 0% del domingo fue leído como señal de alarma y los cierres de la economía se generalizaron. <a class="src" href="https://www.cnn.com/us/dow-jones-industrial-average-fast-facts" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 MAR 2020</div><div class="tl-body"><span class="mv up">+2.113 puntos (+11,4%)</span><b>Su mejor día desde 1933.</b> El Congreso y la Casa Blanca se acercaron a un paquete de estímulo de ~$2 billones, un día después de que la Fed anunciara compras ilimitadas de activos. <a class="src" href="https://www.aljazeera.com/economy/2020/3/24/rebound-dow-closes-up-2100-points-biggest-gain-ever" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 NOV 2020</div><div class="tl-body"><span class="mv up">Primer cierre sobre 30.000</span><b>Vacunas y transición.</b> Los avances de Pfizer, Moderna y AstraZeneca y el inicio formal de la transición de poder a Biden dispararon la rotación hacia los valores castigados por la pandemia. Cierre: 30.046 (+1,5%). <a class="src" href="https://www.aljazeera.com/economy/2020/11/25/the-dow-hit-30000-a-wall-street-milestone-heres-what-it-means" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">13 SEP 2022</div><div class="tl-body"><span class="mv dn">−1.276 puntos (−3,9%)</span><b>IPC caliente.</b> La inflación de agosto (8,3%) confirmó que la Fed seguiría subiendo tasas con agresividad; mayor caída desde junio de 2020. <a class="src" href="https://www.khsu.org/2022-09-13/stocks-plummet-dow-drops-nearly-1-300-points-after-worrying-inflation-data" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 AGO 2024</div><div class="tl-body"><span class="mv dn">−1.034 puntos (−2,6%)</span><b>Contagio japonés.</b> El desplome del Nikkei (−12,4%) por el desarme del «carry trade» en yenes tras la subida del Banco de Japón, más un empleo débil en EE. UU. que avivó el miedo a la recesión. <a class="src" href="https://www.rappler.com/business/updates-global-stock-markets-currencies-oil-prices-august-5-2024/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">4 ABR 2025</div><div class="tl-body"><span class="mv dn">−2.231 puntos (−5,5%)</span><b>Modo crisis.</b> En dos sesiones perdió más de 4.000 puntos (~−9,5%): China respondió a los aranceles del «Día de la Liberación» con un arancel del 34% a los productos estadounidenses, por primera vez en modo crisis desde el COVID. <a class="src" href="https://www.barchart.com/story/news/31728959/dow-plunges-2100-in-a-worsening-global-sell-off-after-china-retaliates-against-trump-tariffs" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 ABR 2025</div><div class="tl-body"><span class="mv up">+~2.963 puntos (+7,9%)</span><b>Su mejor día desde marzo de 2020.</b> Trump pausó por 90 días los aranceles recíprocos para casi todos los países (manteniendo la presión sobre China) y Wall Street firmó una de las mayores sesiones de alivio de su historia. <a class="src" href="https://www.facebook.com/yahoofinance/posts/pfbid0wDp96YoqQ6FeyzS5KbRdTwGaXSvhefwg7eTBTwhRXJ88fELWXVkewGC1w9JCm4U8l" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 NOV 2026</div><div class="tl-body"><span class="mv dn">−1.833 puntos (−3,4%)</span><b>Su mayor caída porcentual desde abril de 2025.</b> La barrida demócrata en las elecciones de medio término desató el temor a una regulación más estricta de la IA y a un freno en la construcción de centros de datos. <a class="src" href="https://www.marketwatch.com/story/tech-stocks-log-worst-day-since-2020-as-carnage-comes-to-the-ai-trade-56109845" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 NOV 2026</div><div class="tl-body"><span class="mv dn">−950 puntos (−1,9%)</span><b>Corrección: semana de ~−8%.</b> El colapso de las acciones de IA (Nvidia −14% en el día, en plena crisis por la salida de su CEO Jensen Huang) coronó la peor semana desde abril de 2025, solo cuatro días después de que el Dow cerrara sobre 51.600. Cierre: 48.147. <a class="src" href="https://www.investopedia.com/stock-market-today-dow-jones-s-and-p-500-nasdaq-11202026-12266027" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-eurusd">
+          <h3>💶 EUR/USD</h3>
+          <p class="hist-intro">El par más operado del mundo: cuántos dólares vale 1 euro. Cotizaba en ~1,09 a inicios de nov-2016 y en ~1,10 a finales de nov-2026 (1,0976 el 25-nov-2026, datos OANDA/Finnhub).</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">14 DIC 2016</div><div class="tl-body"><span class="mv dn">Mínimo de 14 años: 1,0367</span><b>La Fed aprieta.</b> Subió tasas y proyectó tres subidas más en 2017, mientras el BCE mantenía estímulos; el mercado apostó por un dólar fuerte con el plan fiscal expansivo de Trump (~−3% desde la elección). <a class="src" href="https://www.businesstimes.com.sg/international/fed-effect-smashes-euro-14-year-low-us-dollar-soars" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 ABR 2017</div><div class="tl-body"><span class="mv up">+~2% (a 1,0940)</span><b>Alivio francés.</b> Macron ganó la primera vuelta de las elecciones y el mercado descartó una victoria de Le Pen que amenazaba la continuidad del euro: máximo de 5 meses. <a class="src" href="https://www.straitstimes.com/business/companies-markets/euro-jumps-to-5-month-high-on-french-election-relief-dow-futures-soar" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">27 JUN 2017</div><div class="tl-body"><span class="mv up">+~0,5% (a 1,1245)</span><b>El discurso de Sintra.</b> Draghi dijo que «las fuerzas deflacionarias han sido reemplazadas por fuerzas reflacionarias» y el mercado lo leyó como el inicio del fin de las compras de bonos del BCE: encendió el rally de 2017 (hasta ~1,21 en septiembre). <a class="src" href="https://www.business-standard.com/article/reuters/euro-bond-yields-rise-after-draghi-comments-on-economy-117062700463_1.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">29 MAY 2018</div><div class="tl-body"><span class="mv dn">Mínimo de 10 meses: 1,1510</span><b>Crisis política en Italia.</b> El presidente vetó al ministro de Economía euroescéptico de la coalición Liga–M5S, el intento de gobierno se derrumbó y el miedo a unas elecciones-referéndum sobre el euro provocó una venta masiva de deuda italiana y de euros (~−4% en mayo). <a class="src" href="https://www.brecorder.com/news/4605922/euro-falls-to-10-month-low-in-europe-20180530375947" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">23 MAR 2020</div><div class="tl-body"><span class="mv dn">−~7,5% en 2 semanas</span><b>Estampida al dólar.</b> La pandemia provocó una búsqueda mundial de dólares en efectivo (crisis de liquidez): de 1,1495 (9-mar) a 1,0636. La caída solo se frenó cuando la Fed anunció compras ilimitadas ese mismo día. <a class="src" href="https://www.forexcrunch.com/blog/2020/03/31/eur-usd-eyes-indecisive-monthly-close/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">21 JUL 2020</div><div class="tl-body"><span class="mv up">Máximo de 4 meses: 1,1470</span><b>El fondo de recuperación europeo.</b> Los líderes de la UE acordaron 750.000 millones de euros financiados con deuda común por primera vez: confianza en la supervivencia del euro. El año cerró en ~1,22 (+~9%). <a class="src" href="https://www.businesstimes.com.sg/government-economy/eu-reaches-historic-750b-euro-deal-on-post-pandemic-recovery-after-marathon" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">7 MAR 2022</div><div class="tl-body"><span class="mv dn">Caída a 1,0806</span><b>Guerra y energía.</b> Mínimo desde mayo de 2020 (~−4% desde la invasión del 24-feb): la guerra de Ucrania disparó el precio de la energía y el temor a una estanflación en Europa, muy dependiente del gas ruso, mientras el dólar actuaba como refugio. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/capital-markets-currencies/euro-set-for-biggest-3-day-drop-in-2-years" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">13 JUL 2022</div><div class="tl-body"><span class="mv dn">Bajo la paridad: 0,9998</span><b>Primera vez bajo 1,00 desde 2002.</b> Un IPC de EE. UU. más caliente de lo esperado reforzó las apuestas de subidas agresivas de la Fed, frente a un BCE todavía sin subir tasas y una Europa en riesgo de recesión. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/banking-finance/euro-falls-below-dollar-parity-first-time-2002" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">21 JUL 2022</div><div class="tl-body"><span class="mv in">BCE sube tras 11 años</span><b>+50 pb, la tasa de depósito vuelve a 0%.</b> La subida no detuvo la tendencia bajista del euro, lastrado por la crisis energética y la incertidumbre política en Italia: dos meses después el par tocó fondo. <a class="src" href="https://forexnese.com/charts/eurusd" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">28 SEP 2022</div><div class="tl-body"><span class="mv dn">Fondo del ciclo: 0,9536</span><b>El nivel más bajo desde junio de 2002.</b> La crisis energética europea (corte total del gasoducto Nord Stream) y el ciclo de subidas más agresivo de la Fed en décadas llevaron al dólar a máximos de 20 años (~−4,8% solo en septiembre). <a class="src" href="https://www.fxstreet.com/analysis/eur-usd-falls-to-new-20-year-low-202209280955" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">6 NOV 2024</div><div class="tl-body"><span class="mv dn">−~1,9% en el día</span><b>La peor caída desde marzo de 2020.</b> La victoria de Trump y el control republicano del Congreso dispararon el dólar ante la expectativa de aranceles a Europa, recortes de impuestos y menos bajadas de la Fed. Nivel: 1,0682, mínimo de 4 meses. <a class="src" href="https://www.fxstreet.com/news/eur-usd-plummets-as-trump-announces-victory-in-us-presidential-election-202411060918" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">3 ABR 2025</div><div class="tl-body"><span class="mv up">+~2,2% en el día</span><b>La mayor subida en más de 9 años.</b> Los aranceles «recíprocos» de Trump, más duros de lo esperado, provocaron una huida del dólar por temor a una recesión en EE. UU.; el rally continuó hasta 1,1572 el 21-abr, primer nivel sobre 1,15 desde nov-2021. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/banking-finance/euro-jumps-over-2-against-dollar-after-hefty-us-tariffs" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">17 SEP 2025</div><div class="tl-body"><span class="mv up">Máximo de 4 años: 1,1918</span><b>Techo y reversión en horas.</b> La Fed hizo su primer recorte de 2025 (−25 pb) y el euro tocó techo; el tono cauteloso de Powell («sin prisa por bajar») provocó recogida de beneficios y rebote del dólar (~100 pips). <a class="src" href="https://www.fxstreet.com/news/eur-usd-holds-near-11850-as-traders-await-fed-decision-powell-press-conference-202509171754" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">27 ENE 2026</div><div class="tl-body"><span class="mv up">Máximo de 2026: 1,2083</span><b>El más alto desde 2021.</b> Después, una Fed más dura bajo su nuevo presidente y unos datos sólidos de EE. UU. deshicieron el rally durante cinco meses, y el par terminó noviembre de 2026 en ~1,10 (~−9% desde el pico). <a class="src" href="https://www.tradingnews.com/news/eur-usd-rips-to-11710-highest-since-may-14-as-treasury-buybacks-break-the-dollar" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-gbpusd">
+          <h3>💷 GBP/USD</h3>
+          <p class="hist-intro">El «cable»: cuántos dólares vale 1 libra esterlina. Cotizaba en ~1,24 a inicios de nov-2016 (recién hundida por el voto del Brexit de junio) y en ~1,31 a finales de nov-2026 (1,3116 el 25-nov-2026, datos OANDA/Finnhub).</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">24 JUN 2016</div><div class="tl-body"><span class="mv dn">−~8% en un día</span><b>La mayor caída diaria registrada: el Brexit.</b> El Reino Unido votó salir de la UE (52% Leave) contra lo que descontaba el mercado; Cameron dimitió. Mínimo intradía de 1,3229 desde 1,50 la noche anterior: mínimo de 31 años. (Evento de junio, justo antes del período, pero es el origen de todo lo que sigue.) <a class="src" href="https://www.lse.co.uk/news/update-4-sterling-plunges-to-31-year-low-biggest-ever-fall-as-uk-votes-brexit-9x9x5c64k199l6p.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">7 OCT 2016</div><div class="tl-body"><span class="mv dn">«Flash crash» −~9% en minutos</span><b>Caída relámpago en Asia.</b> Hasta 1,1491 (mínimo desde 1985), aunque cerró el día solo ~−1,7%. Sin una causa única según la investigación del BIS/Banco de Inglaterra: titulares de «Brexit duro», liquidez mínima de madrugada, ventas algorítmicas y stops en cadena. <a class="src" href="https://www.aljazeera.com/economy/2016/10/7/flash-crash-uk-pound-falls-on-brexit-concerns" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">3 NOV 2016</div><div class="tl-body"><span class="mv up">+~1,5% (a 1,2494)</span><b>El Parlamento entra en juego.</b> El Tribunal Superior ruled que el Gobierno necesitaba el voto del Parlamento para activar el Artículo 50, lo que alimentó esperanzas de un Brexit más suave; el Banco de Inglaterra además descartó bajar tasas. <a class="src" href="https://www.arabnews.com/business/sterling-surges-after-brexit-ruling-1006041" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 JUN 2017</div><div class="tl-body"><span class="mv dn">−~2% (a 1,2636)</span><b>La apuesta fallida de May.</b> Theresa May perdió la mayoría absoluta en las elecciones que ella misma adelantó para reforzarse: el Parlamento sin mayoría disparó la incertidumbre justo antes de empezar las negociaciones del Brexit. <a class="src" href="https://www.thehindu.com/business/british-pound-tumbles-as-uk-election-gamble-fails/article18930642.ece" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">13 DIC 2019</div><div class="tl-body"><span class="mv up">+~2,5% (a 1,3516)</span><b>La victoria de Johnson.</b> Mayoría aplastante de 80 escaños: aseguró un Brexit ordenado el 31-ene-2020 y cerró tres años de parálisis parlamentaria. Máximo de 19 meses y una de las mayores subidas diarias en décadas. <a class="src" href="https://www.haaretz.com/world-news/wires/2019-12-13/ty-article/update-7-uk-destined-for-brexit-as-johnson-wins-big/0000017f-e78b-da9b-a1ff-efef12620000" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 MAR 2020</div><div class="tl-body"><span class="mv dn">Mínimo de 35 años: 1,1412</span><b>Pánico COVID (−~13% en 10 días).</b> Huida global hacia el dólar, recortes de emergencia del Banco de Inglaterra (hasta 0,1%) y la incertidumbre del Brexit sin cerrar; solo el 18-mar cayó −3,6%. <a class="src" href="https://www.exchangerates.org.uk/news/31509/2020-pound-to-dollar-exchange-rate-in-review-key-gbp-usd-moving-events-2021-currency-outlook.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 DIC 2020</div><div class="tl-body"><span class="mv up">Cierre de 2020 en ~1,37</span><b>Acuerdo comercial en Nochebuena.</b> El acuerdo UE–Reino Unido eliminó el riesgo de un Brexit sin acuerdo, y el rápido despliegue de vacunas en el Reino Unido reforzó el optimismo: en febrero de 2021 la libra llegó a ~1,424, máximo desde 2018. <a class="src" href="https://www.fxstreet.com/news/pound-sterling-price-news-and-forecast-gbp-usd-stretches-higher-approaching-13800-with-the-us-dollar-202507011112" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">26 SEP 2022</div><div class="tl-body"><span class="mv dn">MÍNIMO HISTÓRICO: 1,0327</span><b>El «mini-presupuesto» de Liz Truss.</b> Anunciado el 23-sep: recortes de impuestos masivos financiados con deuda y sin aval de la OBR. Los inversores vendieron libras y bonos británicos en estampida y el Gobierno perdió la credibilidad fiscal (caída intradía de ~−5% en Asia). <a class="src" href="https://www.rappler.com/business/bank-of-england-british-pound-bond-prices-september-26-2022/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">28 SEP 2022</div><div class="tl-body"><span class="mv up">Rebote +~1,4% (a 1,0877)</span><b>El Banco de Inglaterra interviene.</b> Compras de emergencia de bonos a largo plazo para frenar el colapso de los gilts que amenazaba a los fondos de pensiones; primer paso del giro que acabaría con la dimisión de Truss el 20-oct. <a class="src" href="https://www.thehindu.com/news/international/sterling-turns-positive-as-dollar-wavers-and-pm-truss-defends-economic-plans/article65951539.ece" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">13 JUL 2023</div><div class="tl-body"><span class="mv up">Máximo de 15 meses: 1,3144</span><b>Inflaciones cruzadas (+~3% en la semana).</b> La inflación de EE. UU. se enfrió más de lo previsto (menos subidas de la Fed) mientras los salarios británicos seguían calientes, empujando las apuestas de más subidas del Banco de Inglaterra. <a class="src" href="https://technologydispatch.com/dollar-gains-as-pound-tumbles-on-cooling-uk-inflation/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">1 JUL 2025</div><div class="tl-body"><span class="mv up">Máximo desde oct-2021: ~1,3789</span><b>Arrastrada por el dólar débil.</b> Incertidumbre arancelaria, dudas sobre la salud fiscal de EE. UU. y apuestas de recortes de la Fed empujaron a la libra por encima de 1,3770. <a class="src" href="https://www.fxstreet.com/news/pound-sterling-price-news-and-forecast-gbp-usd-stretches-higher-approaching-13800-with-the-us-dollar-202507011112" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 NOV 2026</div><div class="tl-body"><span class="mv dn">Caída a ~1,327</span><b>Ni la subida de tasas la salvó.</b> El Banco de Inglaterra subió tasas al 4,00% (votación 8-1), pero un IPC de EE. UU. caliente llevó las probabilidades de subida de la Fed al 100% y el dólar fuerte borró el impulso británico en los días siguientes. <a class="src" href="https://www.tradingnews.com/news/pound-drops-to-13268-as-fed-repricing-erases-boe-4-percent-hike" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-usdjpy">
+          <h3>💴 USD/JPY</h3>
+          <p class="hist-intro">El par dólar/yen: el cruce más sensible al diferencial de tasas entre la Fed y el Banco de Japón y a las intervenciones de Tokio. Arrancó nov-2016 en torno a ¥103 por dólar y a finales de nov-2026 cotiza en torno a ¥159.</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">9 NOV 2016</div><div class="tl-body"><span class="mv up">+~17% en 5 semanas</span><b>El efecto Trump (¥101,18 → ¥118,66 el 15-dic).</b> La victoria sorpresa disparó las expectativas de estímulo fiscal, inflación y subidas de la Fed, mientras el Banco de Japón mantenía su política ultraexpansiva. <a class="src" href="https://www.fxempire.com/forecasts/article/2017-usdjpy-annual-forecast-380862" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">3 ENE 2019</div><div class="tl-body"><span class="mv dn">«Flash crash» −~3,7%</span><b>De ~108,90 a 104,87 en minutos.</b> Apple recortó su previsión de ingresos por la desaceleración en China y, con Japón de feriado y liquidez mínima, los flujos refugio hacia el yen y los algoritmos amplificaron el movimiento (luego recuperó hacia 107,50). <a class="src" href="https://www.brecorder.com/news/462943/yen-surges-aussie-slides-as-growth-fears-trigger-fx-flash-crash" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">22 SEP 2022</div><div class="tl-body"><span class="mv dn">De 145,90 a 140,35 en el día</span><b>Primera intervención desde 1998.</b> Japón compró yenes por 2,84 billones (datos del Ministerio de Finanzas): la Fed había subido 75 pb el día anterior y el BoJ mantenía su tasa en −0,1%, abriendo al máximo la brecha de políticas. <a class="src" href="https://www3.nhk.or.jp/nhkworld/en/news/backstories/2116/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">21 OCT 2022</div><div class="tl-body"><span class="mv in">Máximo 151,94 · intervención secreta</span><b>Yen en mínimo de 32 años.</b> Una intervención de 5,62 billones hundió el par más de 7 yenes, hasta 144,50, y hubo otra el 24-oct (total del mes: 6,35 billones, récord). La divergencia Fed–BoJ siguió empujando al yen pese a las advertencias de Tokio. <a class="src" href="https://www.brecorder.com/news/40204554/japan-intervened-buying-yen-in-foreign-exchange-market-friday" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">20 DIC 2022</div><div class="tl-body"><span class="mv dn">−~3,8% en el día (a ~132,0)</span><b>La sorpresa del BoJ.</b> Amplió la banda del control de la curva de rendimientos (YCC) de ±0,25% a ±0,50%: el mayor salto del yen en meses, leído como el primer paso hacia la normalización. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/yen-soars-4-month-high-after-surprise-boj-policy-tweak" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">19 MAR 2024</div><div class="tl-body"><span class="mv up">El yen se debilita (+~1% a ¥151)</span><b>Fin de las tasas negativas… y venta de yenes.</b> El BoJ subió por primera vez en 17 años (de −0,1% a 0–0,1%) y abandonó el YCC, pero ya estaba descontado y el banco prometió mantener condiciones acomodaticias: el mercado vendió yenes. <a class="src" href="https://www.arabnews.com/business/bank-of-japan-ends-negative-rates-farewells-era-of-radical-policy-2479046" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">29 ABR 2024</div><div class="tl-body"><span class="mv in">Tocó 160,245 y rebotó a ~155</span><b>Yen en mínimo de 34 años e intervención.</b> 5,92 billones de yenes en pleno feriado japonés, seguidos de otros 3,87 billones el 1-may, tras un BoJ que días antes no había mostrado preocupación por el tipo de cambio. <a class="src" href="https://japannews.yomiuri.co.jp/news-services/reuters/20240429-183141/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 AGO 2024</div><div class="tl-body"><span class="mv dn">−~12% en un mes (a ~141,7)</span><b>El desarme global del «carry trade».</b> De ~161,9 a principios de julio (yen más débil desde 1986): la subida del BoJ del 31-jul (a 0,25%) y un débil empleo en EE. UU. estrecharon la brecha de tasas por ambos lados y forzaron el cierre masivo de cortos en yenes; el Nikkei cayó 12,4%. <a class="src" href="https://fxrecap.com/learn-forex/education/yen-carry-trade-unwind-2024" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">30 JUL 2026</div><div class="tl-body"><span class="mv in">Intervención récord: 7,98 billones en un día</span><b>Operación conjunta con EE. UU.</b> Tras marcar ~164 (el yen más débil en 40 años), la intervención —con participación de EE. UU. según los reportes— le quitó más de 8 yenes al par en dos sesiones; el total intervenido en 2026 supera los 27 billones (datos del Ministerio de Finanzas). <a class="src" href="https://www.tradingnews.com/news/usd-jpy-climbs-to-15913-as-nvidia-rally-drains-yen-haven-bid-16050-usd-target" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-btc">
+          <h3>₿ Bitcoin (BTC/USD)</h3>
+          <p class="hist-intro">La criptomoneda original y referencia de todo el mercado cripto: en nov-2016 cotizaba en torno a ~$700 y a finales de nov-2026 ronda los ~$59.000–60.000, cerca de un 53% por debajo de su récord histórico de $126.198 (oct-2025).</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">17 DIC 2017</div><div class="tl-body"><span class="mv up">Récord: $19.783</span><b>La primera gran burbuja cripto (+~1.800% en el año).</b> Euforia minorista global, fiebre de las ICO y el debut de los futuros de bitcoin (CBOE el 10-dic y CME el 18) marcaron el clímax. <a class="src" href="https://www.coindesk.com/markets/2017/12/22/bitcoin-price-drops-below-15k-down-25-from-all-time-high" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">17 DIC 2018</div><div class="tl-body"><span class="mv dn">~$3.250 (−84% en un año)</span><b>El primer gran invierno cripto.</b> El estallido de la burbuja de las ICO, las subidas de tasas de la Fed y la «guerra de hash» de Bitcoin Cash (nov-2018) completaron la caída, justo un año después del pico. <a class="src" href="https://money.com/bitcoin-price-record-high-value/?amp=true" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">12 MAR 2020</div><div class="tl-body"><span class="mv dn">«Jueves Negro» −~40%</span><b>Pánico COVID.</b> Tocó ~$3.850 el 13-mar (~−50% en unas 36 horas): la búsqueda global de efectivo y la cascada de liquidaciones de posiciones apalancadas hundieron todos los mercados. <a class="src" href="https://insights.deribit.com/exchange-updates/march-market-crash/" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">8 FEB 2021</div><div class="tl-body"><span class="mv up">+~16% en un día (récord $44.795)</span><b>Tesla compra bitcoin.</b> Reveló una compra de $1.500 millones y que aceptaría pagos con la criptomoneda: la mayor validación corporativa recibida hasta entonces. <a class="src" href="https://www.business-standard.com/amp/article/markets/tesla-electrifies-bitcoin-with-1-5-billion-bet-car-payments-pledge-121020801447_1.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">19 MAY 2021</div><div class="tl-body"><span class="mv dn">−~30% en un día (a ~$30.000)</span><b>China y Musk.</b> China prohibió a sus instituciones financieras prestar servicios cripto y días antes Elon Musk había suspendido los pagos con bitcoin en Tesla por el consumo energético de la minería: liquidaciones masivas y casi $1 billón de capitalización borrado del sector. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/banking-finance/bitcoin-plunges-a-bust-or-a-buy" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">10 NOV 2021</div><div class="tl-body"><span class="mv up">Récord: $69.045</span><b>Techo del ciclo 2020-21.</b> La liquidez de la era COVID, la adopción institucional y el lanzamiento en octubre del primer ETF de futuros de bitcoin en EE. UU. coronaron dos años de mercado alcista. <a class="src" href="https://www.coindesk.com/markets/2024/03/05/bitcoin-soars-to-new-all-time-high-above-69k" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">12 MAY 2022</div><div class="tl-body"><span class="mv dn">Bajo $26.000 (desde ~$40.000 en una semana)</span><b>El colapso de Terra/Luna.</b> La stablecoin algorítmica UST perdió su paridad el 7-9 de mayo y LUNA se fue prácticamente a cero; la fundación Terra vendió su reserva de bitcoin intentando defender el peg y agravó la caída (mínimo ~$25.420, el más bajo desde dic-2020). <a class="src" href="https://mainichi.jp/english/articles/20220514/p2g/00m/0bu/026000c" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">18 JUN 2022</div><div class="tl-body"><span class="mv dn">~$17.600</span><b>Contagio: Celsius y Three Arrows.</b> Rompió incluso el máximo del ciclo anterior: el prestamista Celsius había congelado los retiros el 12-jun y el fondo Three Arrows Capital colapsaba, forzando liquidaciones en cadena. <a class="src" href="https://www.coindesk.com/markets/2022/06/18/crypto-market-tumbles-as-bitcoin-breaks-previous-cycles-highs" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">9 NOV 2022</div><div class="tl-body"><span class="mv dn">Mínimo de 2 años: $15.632</span><b>La caída de FTX.</b> Uno de los mayores exchanges sufrió una corrida tras revelarse su dependencia del token FTT y el uso de fondos de clientes por Alameda; Binance retiró su rescate y FTX se declaró en quiebra el 11-nov. El fondo del ciclo llegó el 21-nov (~$15.479). <a class="src" href="https://www.straitstimes.com/business/ftx-goes-bankrupt-in-stunning-reversal-for-crypto-exchange" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">10 ENE 2024</div><div class="tl-body"><span class="mv up">La SEC aprueba los ETF spot</span><b>Puerta abierta al dinero institucional.</b> Los primeros 11 ETF spot de bitcoin en EE. UU. (BlackRock, Fidelity, Grayscale); bitcoin rondaba $46.000–47.000 y tocó ~$49.000 al día siguiente. El precio ya había subido ~166% en los 12 meses previos anticipando la decisión. <a class="src" href="https://www.coindesk.com/markets/2024/01/10/bitcoin-wobbles-below-46k-ether-and-grayscales-gbtc-jump-as-sec-approves-spot-bitcoin-etfs" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">5 DIC 2024</div><div class="tl-body"><span class="mv up">Supera los $100.000 (récord $103.619)</span><b>Euforia poselectoral.</b> La victoria de Trump y su nominación del pro-cripto Paul Atkins para presidir la SEC coronaron un año de entradas masivas a los ETF (+~6% en el día). <a class="src" href="https://www.kitco.com/news/off-the-wire/2024-12-05/bitcoin-storms-above-100000-trump-20-fuels-crypto-euphoria" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">6 OCT 2025</div><div class="tl-body"><span class="mv in">RÉCORD HISTÓRICO: $126.198</span><b>Y el giro cuatro días después.</b> Demanda récord de los ETF spot y el impulso estacional de octubre. El 10-oct, una amenaza arancelaria de Trump contra China provocó la mayor liquidación registrada en cripto (~$19.000 millones, según CoinGlass) y abrió el mercado bajista que llevó a bitcoin a ~$58.600 en jun-2026. <a class="src" href="https://www.coindesk.com/markets/2026/10/06/from-retail-leverage-to-etf-flows-a-year-after-its-record-high-bitcoin-is-down-just-32" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+
+        <div class="hist-panel" id="hist-eth">
+          <h3>Ξ Ethereum (ETH/USD)</h3>
+          <p class="hist-intro">Ether, el token de la red de contratos inteligentes que sostiene a DeFi y los NFT: en nov-2016 valía ~$10 y a finales de nov-2026 cotiza en torno a ~$1.700, cerca de un 66% por debajo de su récord de $4.953,73 (ago-2025).</p>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-date">13 ENE 2018</div><div class="tl-body"><span class="mv up">Récord: $1.432,88</span><b>El clímax de las ICO.</b> La mayoría de las ICO se lanzaron sobre la propia red Ethereum, multiplicando la demanda de ether (índice de CoinDesk). <a class="src" href="https://www.coindesk.com/markets/2021/01/19/ethereums-ether-cryptocurrency-sets-new-all-time-price-high-near-1440" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">15 DIC 2018</div><div class="tl-body"><span class="mv dn">Mínimo ~$82,83 (−~94% desde el pico)</span><b>El invierno cripto lo castigó más que a bitcoin.</b> Las ICO fracasaban, el escrutinio regulatorio crecía y los proyectos vendían sus tesorerías en ether. <a class="src" href="https://www.coinglass.com/currencies/ETH/historical-data" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">12 MAR 2020</div><div class="tl-body"><span class="mv dn">«Jueves Negro» −~45%</span><b>Arrastre COVID.</b> Tocó ~$90 (mínimo del año: $95,18 el 13-mar según datos de mercado), arrastrado por la liquidación global de activos de riesgo y las liquidaciones en DeFi. <a class="src" href="https://www.mexc.co/en-PH/learn/article/ethereum-price-history-by-year-every-major-bull-run-and-crash-explained/1" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">19 MAY 2021</div><div class="tl-body"><span class="mv dn">Hasta −~45% en el día</span><b>De ~$3.400 a menos de $2.000.</b> El mismo doble golpe —la prohibición china a los servicios cripto y el giro de Musk/Tesla contra los pagos con bitcoin— golpeó con más fuerza a las altcoins. <a class="src" href="https://www.businesstimes.com.sg/companies-markets/banking-finance/bitcoin-plunges-a-bust-or-a-buy" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">16 NOV 2021</div><div class="tl-body"><span class="mv up">Récord: $4.891,70</span><b>Techo del ciclo (CoinMarketCap).</b> El auge de DeFi y los NFT, sumado a la quema de comisiones introducida por la actualización EIP-1559 en agosto, impulsó la demanda de ether hasta su máximo. <a class="src" href="https://www.business-standard.com/amp/markets/cryptocurrency/bitcoin-pauses-around-record-high-levels-ethereum-cordano-blaze-ahead-125052300322_1.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">18 JUN 2022</div><div class="tl-body"><span class="mv dn">Bajo los $1.000 (hasta ~$900)</span><b>Liquidaciones en cascada.</b> El colapso de Terra (mayo) contagió al prestamista Celsius, que congeló retiros, y al fondo Three Arrows, forzando ventas de ether en todo el ecosistema DeFi. <a class="src" href="https://www.nasdaq.com/articles/ethereum-price-history-decade-disrupting-finance" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">15 SEP 2022</div><div class="tl-body"><span class="mv dn">«The Merge»: −9,1% en el día</span><b>Compra el rumor, vende la noticia.</b> Ethereum abandonó la minería (proof-of-work) por proof-of-stake, recortando su consumo energético ~99%, y la actualización salió perfecta… pero el precio cayó a ~$1.489 tras meses de anticipación. <a class="src" href="https://www.coindesk.com/tech/2022/09/15/pivotal-ethereum-merge-brings-sell-the-fact-price-move-in-crypto-markets" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">10 ENE 2024</div><div class="tl-body"><span class="mv up">+11% (sobre $2.500)</span><b>El efecto ETF.</b> Máximo de 20 meses el mismo día de la aprobación de los ETF spot de bitcoin: los inversores apostaron de inmediato a que ether sería el siguiente activo con ETF propio en EE. UU. <a class="src" href="https://www.coindesk.com/markets/2024/01/10/bitcoin-wobbles-below-46k-ether-and-grayscales-gbtc-jump-as-sec-approves-spot-bitcoin-etfs" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">23 JUL 2024</div><div class="tl-body"><span class="mv in">Debut de los ETF spot de ether</span><b>$1.070 millones negociados el primer día.</b> Aun así, ether cerró prácticamente plano en ~$3.487: las salidas del fondo convertido de Grayscale compensaron las entradas nuevas. <a class="src" href="https://www.koreatimes.co.kr/world/20240723/us-spot-ether-etfs-make-market-debut-in-another-win-for-crypto-industry" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">24 AGO 2025</div><div class="tl-body"><span class="mv up">RÉCORD HISTÓRICO: $4.953,73</span><b>Por fin superó el pico de 2021 (CoinMarketCap).</b> El discurso expansivo de Powell en Jackson Hole (22-ago) se sumó a entradas récord en los ETF de ether y a las compras de tesorerías corporativas como BitMine. <a class="src" href="https://www.business-standard.com/markets/cryptocurrency/dovish-powell-sends-ethereum-to-fresh-all-time-high-what-s-next-for-eth-125082500499_1.html" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+            <div class="tl-item"><div class="tl-date">6 JUN 2026</div><div class="tl-body"><span class="mv dn">Mínimo de 2026: ~$1.507</span><b>Mercado bajista posterior al récord.</b> Salidas de los ETF, temor a la política de la Fed y aversión al riesgo dejaron a ether en torno a un tercio de su máximo histórico, nivel en el que sigue en noviembre de 2026. <a class="src" href="https://www.coinglass.com/currencies/ETH/historical-data" target="_blank" rel="noopener">Fuente ↗</a></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DIARIO -->
+      <section class="section" id="sec-diario">
+        <h2>Diario de trading</h2>
+        <p class="desc">La nota de hoy: qué viste, qué hiciste y qué aprendiste.</p>
+        <div class="panel-box" style="margin-top:0;">
+          <textarea id="diarioTexto" rows="7" placeholder="Escribe la nota de hoy..."></textarea>
+          <button class="btn-add" id="diarioGuardar" style="margin-top:12px;">Guardar nota de hoy</button>
+          <div id="diarioMsg" style="color:var(--muted); font-size:13px; margin-top:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ESTADÍSTICAS -->
+      <section class="section" id="sec-estadisticas">
+        <h2>Estadísticas</h2>
+        <p class="desc">Calculadas desde tus operaciones registradas.</p>
+        <div class="cards">
+          <div class="stat"><div class="k">Operaciones totales</div><div class="v" id="esTotal">—</div></div>
+          <div class="stat"><div class="k">Ganadoras</div><div class="v pos" id="esGan">—</div></div>
+          <div class="stat"><div class="k">Perdedoras</div><div class="v neg" id="esPer">—</div></div>
+          <div class="stat"><div class="k">Mejor operación</div><div class="v" id="esMejor">—</div></div>
+        </div>
+      </section>
+
+      <!-- CONFIGURACIÓN -->
+      <section class="section" id="sec-config">
+        <h2>Configuración</h2>
+        <p class="desc">Tu cuenta privada y sus registros se guardan en D1. La sesión usa una cookie protegida.</p>
+        <div class="panel-box" style="margin-top:0;">
+          <p style="font-size:14px; color:var(--muted);">Cuenta de <b id="cfgEmail" style="color:var(--text);"></b>.</p>
+          <label>Contraseña actual</label>
+          <input type="password" id="cfgActual" placeholder="••••••••">
+          <label>Nueva contraseña</label>
+          <input type="password" id="cfgNueva" placeholder="••••••••">
+          <div class="error" id="cfgError"></div>
+          <button class="btn-add" id="cfgCambiar" style="margin-top:14px;">Cambiar contraseña</button>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-bottom:8px;">Respaldo de registros</h3>
+          <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">El archivo incluye operaciones, posiciones y diario. No incluye correo ni contraseña. Restaurar reemplaza tus registros guardados en el servidor.</p>
+          <button class="btn-add" id="backupExport" type="button">Descargar respaldo JSON</button>
+          <label for="backupImport">Restaurar respaldo JSON</label>
+          <input type="file" id="backupImport" accept="application/json,.json">
+          <div id="backupMsg" style="color:var(--muted); font-size:13px; margin-top:8px;" aria-live="polite"></div>
+        </div>
+        <div class="panel-box">
+          <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">Esta acción borra las operaciones, posiciones y notas guardadas en el servidor.</p>
+          <button class="btn-ghost" id="cfgBorrar" style="color:var(--red); border-color:var(--red); width:auto; padding:10px 16px;">Borrar registros del servidor</button>
+        </div>
+      </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var K_USER="gt_user", K_HASH="gt_hash", K_OPS="gt_ops", K_DIARIO="gt_diario", K_SES="gt_session", K_POS="gt_pos";
+  var $=function(id){return document.getElementById(id);};
+  var appData={operations:[],positions:[],diary:{}}, hasAccount=false, saveQueue=Promise.resolve();
+  function api(path,options){
+    options=options||{};var headers=Object.assign({},options.headers||{});
+    if(options.body)headers["Content-Type"]="application/json";
+    return fetch(path,Object.assign({credentials:"same-origin"},options,{headers:headers})).then(function(response){
+      return response.json().catch(function(){return {};}).then(function(data){
+        if(!response.ok){var error=new Error(data.error||"No se pudo completar la solicitud.");error.status=response.status;throw error;}
+        return data;
+      });
+    });
+  }
+  function money(n){ return (n<0?"-$":"$") + Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function getOps(){ return appData.operations; }
+  function setOps(o){ appData.operations=o; persistData(); }
+  function getPos(){ return appData.positions; }
+  function setPos(p){ appData.positions=p; persistData(); }
+  function getDiario(){ return appData.diary; }
+  function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+  function setSaveStatus(message,isError){
+    var el=$("saveStatus");el.textContent=message;el.style.color=isError?"var(--red)":"var(--muted)";
+  }
+  function persistData(){
+    var body=JSON.stringify({data:appData});
+    var job=saveQueue.catch(function(){}).then(function(){return api("/api/data",{method:"PUT",body:body});});
+    saveQueue=job;
+    job.then(function(){setSaveStatus("Cambios guardados en el servidor.",false);})
+       .catch(function(error){setSaveStatus(error.message||"No se pudieron guardar los cambios.",true);});
+    return job;
+  }
+
+
   /* ---------- AUTENTICACIÓN EN SERVIDOR ---------- */
-  function showError(msg){ var e=$("loginError"); e.textContent=msg; e.style.display="block"; }
+  function showError(msg){var e=$("loginError");e.textContent=msg;e.style.display="block";}
   function configureLogin(initialized){
-    hasAccount=initialized;
-    $("loginError").style.display="none";
+    hasAccount=initialized;$("loginError").style.display="none";
     $("setupTokenWrap").style.display=initialized?"none":"block";
     $("confirmWrap").style.display=initialized?"none":"block";
     $("loginSub").textContent=initialized?"Inicia sesión en tu cuenta":"Crea la primera cuenta privada";
@@ -36,33 +668,27 @@
       :"Configura la única cuenta. Necesitas el token inicial guardado como secreto en Cloudflare.";
   }
   $("loginForm").addEventListener("submit",async function(ev){
-    ev.preventDefault();
-    $("loginBtn").disabled=true;
-    $("loginError").style.display="none";
+    ev.preventDefault();$("loginBtn").disabled=true;$("loginError").style.display="none";
     var email=$("email").value.trim().toLowerCase(),password=$("password").value;
     try{
-      if(!email||!password) throw new Error("Completa el correo y la contraseña.");
+      if(!email||!password)throw new Error("Completa el correo y la contraseña.");
       var body={action:hasAccount?"login":"setup",email:email,password:password};
       if(!hasAccount){
-        if(password.length<12) throw new Error("La contraseña debe tener al menos 12 caracteres.");
-        if(password!==$("password2").value) throw new Error("Las contraseñas no coinciden.");
+        if(password.length<12)throw new Error("La contraseña debe tener al menos 12 caracteres.");
+        if(password!==$("password2").value)throw new Error("Las contraseñas no coinciden.");
         body.setupToken=$("setupToken").value;
       }
       var result=await api("/api/auth",{method:"POST",body:JSON.stringify(body)});
-      configureLogin(true);
-      await enterApp(result.email);
+      configureLogin(true);await enterApp(result.email);
     }catch(error){showError(error.message||"No se pudo iniciar sesión.");}
     finally{$("loginBtn").disabled=false;}
   });
   async function initializeAuth(){
     try{
-      var status=await api("/api/auth");
-      configureLogin(!!status.initialized);
+      var status=await api("/api/auth");configureLogin(!!status.initialized);
       if(status.initialized){
-        try{
-          var current=await api("/api/data");
-          await enterApp($("email").value,current);
-        }catch(error){if(error.status!==401) showError(error.message||"El servidor no está disponible.");}
+        try{var current=await api("/api/data");await enterApp($("email").value,current);}
+        catch(error){if(error.status!==401)showError(error.message||"El servidor no está disponible.");}
       }
     }catch(error){showError("El servidor no está configurado o no responde. Abre la versión publicada en Cloudflare Pages.");}
   }
@@ -83,21 +709,15 @@
   $("scrim").addEventListener("click", closeDrawer);
 
   async function enterApp(email,payload){
-    if(!payload) payload=await api("/api/data");
-    appData=payload.data;
-    $("loginView").style.display="none";
-    $("appView").style.display="block";
-    $("userEmail").textContent=email||"";
-    $("topEmail").textContent=email||"";
-    $("cfgEmail").textContent=email||"";
-    if(window.innerWidth>=1024){openDrawer();}
+    if(!payload)payload=await api("/api/data");
+    appData=payload.data;$("loginView").style.display="none";$("appView").style.display="block";
+    $("userEmail").textContent=email||"";$("topEmail").textContent=email||"";$("cfgEmail").textContent=email||"";
+    if(window.innerWidth>=1024)openDrawer();
     renderOps();renderStats();renderPos();loadDiario();
   }
   $("logoutBtn").addEventListener("click",async function(){
-    try{
-      await saveQueue.catch(function(){});
-      await api("/api/auth",{method:"POST",body:JSON.stringify({action:"logout"})});
-    }finally{location.reload();}
+    try{await saveQueue.catch(function(){});await api("/api/auth",{method:"POST",body:JSON.stringify({action:"logout"})});}
+    finally{location.reload();}
   });
 
   /* Navegación del menú */
@@ -210,13 +830,11 @@
     var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
     var url=URL.createObjectURL(blob),a=document.createElement("a");
     a.href=url;a.download="respaldo-trading-"+todayStr()+".json";
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+    document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);
     setBackupMessage("Respaldo descargado. Guárdalo en un lugar seguro.",false);
   });
   $("backupImport").addEventListener("change",function(ev){
-    var file=ev.target.files&&ev.target.files[0];
-    if(!file)return;
+    var file=ev.target.files&&ev.target.files[0];if(!file)return;
     if(file.size>10*1024*1024){setBackupMessage("El archivo supera el máximo de 10 MB.",true);ev.target.value="";return;}
     var reader=new FileReader();
     reader.onerror=function(){setBackupMessage("No se pudo leer el archivo.",true);ev.target.value="";};
@@ -229,9 +847,7 @@
           d.operations.length>50000||d.positions.length>50000||Object.keys(d.diary).length>50000){
           throw new Error("El formato del respaldo no es válido.");
         }
-        if(!confirm("Restaurar reemplazará operaciones, posiciones y notas del servidor. Descarga un respaldo antes. ¿Deseas continuar?")){
-          ev.target.value="";return;
-        }
+        if(!confirm("Restaurar reemplazará operaciones, posiciones y notas del servidor. Descarga un respaldo antes. ¿Continuar?")){ev.target.value="";return;}
         await api("/api/data",{method:"PUT",body:JSON.stringify({data:d})});
         appData=d;renderOps();renderStats();renderPos();loadDiario();
         setBackupMessage("Respaldo restaurado correctamente en el servidor.",false);
@@ -278,8 +894,8 @@
     var d=getDiario();
     d[todayStr()] = $("diarioTexto").value;
     appData.diary=d;
-    persistData().then(function(){ $("diarioMsg").textContent = "Nota guardada en el servidor ("+todayStr()+")."; })
-      .catch(function(error){ $("diarioMsg").textContent=error.message||"No se pudo guardar la nota."; });
+    persistData().then(function(){$("diarioMsg").textContent="Nota guardada en el servidor ("+todayStr()+").";})
+      .catch(function(error){$("diarioMsg").textContent=error.message||"No se pudo guardar la nota.";});
   });
 
   /* ---------- CONFIGURACIÓN ---------- */
@@ -294,7 +910,7 @@
     }catch(error){e.textContent=error.message||"No se pudo cambiar la contraseña.";e.style.display="block";}
   });
   $("cfgBorrar").addEventListener("click",async function(){
-    if(!confirm("Se borrarán del servidor todas tus operaciones, posiciones y notas. Esta acción no se puede deshacer. ¿Continuar?")) return;
+    if(!confirm("Se borrarán del servidor todas tus operaciones, posiciones y notas. Esta acción no se puede deshacer. ¿Continuar?"))return;
     try{
       await api("/api/data",{method:"DELETE"});
       appData={operations:[],positions:[],diary:{}};
