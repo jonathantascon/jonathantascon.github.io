@@ -623,7 +623,7 @@
   "use strict";
   var K_USER="gt_user", K_HASH="gt_hash", K_OPS="gt_ops", K_DIARIO="gt_diario", K_SES="gt_session", K_POS="gt_pos";
   var $=function(id){return document.getElementById(id);};
-  var appData={operations:[],positions:[],diary:{}}, hasAccount=false, saveQueue=Promise.resolve();
+  var appData={operations:[],positions:[],diary:{}}, hasAccount=false, saveQueue=Promise.resolve(), dataRevision=null;
   function api(path,options){
     options=options||{};var headers=Object.assign({},options.headers||{});
     if(options.body)headers["Content-Type"]="application/json";
@@ -645,10 +645,10 @@
     var el=$("saveStatus");el.textContent=message;el.style.color=isError?"var(--red)":"var(--muted)";
   }
   function persistData(){
-    var body=JSON.stringify({data:appData});
+    var body=JSON.stringify({data:appData,expectedRevision:dataRevision});
     var job=saveQueue.catch(function(){}).then(function(){return api("/api/data",{method:"PUT",body:body});});
     saveQueue=job;
-    job.then(function(){setSaveStatus("Cambios guardados en el servidor.",false);})
+    job.then(function(result){dataRevision=result.revision;setSaveStatus("Cambios guardados en el servidor.",false);})
        .catch(function(error){setSaveStatus(error.message||"No se pudieron guardar los cambios.",true);});
     return job;
   }
@@ -710,7 +710,7 @@
 
   async function enterApp(email,payload){
     if(!payload)payload=await api("/api/data");
-    appData=payload.data;$("loginView").style.display="none";$("appView").style.display="block";
+    appData=payload.data;dataRevision=payload.revision;$("loginView").style.display="none";$("appView").style.display="block";
     $("userEmail").textContent=email||"";$("topEmail").textContent=email||"";$("cfgEmail").textContent=email||"";
     if(window.innerWidth>=1024)openDrawer();
     renderOps();renderStats();renderPos();loadDiario();
@@ -848,8 +848,8 @@
           throw new Error("El formato del respaldo no es válido.");
         }
         if(!confirm("Restaurar reemplazará operaciones, posiciones y notas del servidor. Descarga un respaldo antes. ¿Continuar?")){ev.target.value="";return;}
-        await api("/api/data",{method:"PUT",body:JSON.stringify({data:d})});
-        appData=d;renderOps();renderStats();renderPos();loadDiario();
+        var saved=await api("/api/data",{method:"PUT",body:JSON.stringify({data:d,expectedRevision:dataRevision})});
+        dataRevision=saved.revision;appData=d;renderOps();renderStats();renderPos();loadDiario();
         setBackupMessage("Respaldo restaurado correctamente en el servidor.",false);
       }catch(error){setBackupMessage(error.message||"No se pudo restaurar el respaldo.",true);}
       ev.target.value="";
@@ -913,7 +913,7 @@
     if(!confirm("Se borrarán del servidor todas tus operaciones, posiciones y notas. Esta acción no se puede deshacer. ¿Continuar?"))return;
     try{
       await api("/api/data",{method:"DELETE"});
-      appData={operations:[],positions:[],diary:{}};
+      appData={operations:[],positions:[],diary:{}};dataRevision=null;
       renderOps();renderStats();renderPos();loadDiario();
       setBackupMessage("Se borraron los registros del servidor.",false);
     }catch(error){setBackupMessage(error.message||"No se pudieron borrar los registros.",true);}
