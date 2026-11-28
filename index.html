@@ -126,7 +126,7 @@
   <div class="login-card">
     <div class="logo">📈</div>
     <h1>Gestión <span>Trading</span></h1>
-    <p class="sub" id="loginSub">Crea tu acceso para entrar a tu panel</p>
+    <p class="sub" id="loginSub">Crea un acceso local para este navegador</p>
     <form id="loginForm" autocomplete="off">
       <label for="email">Correo electrónico</label>
       <input type="email" id="email" required placeholder="tu@correo.com">
@@ -137,9 +137,9 @@
         <input type="password" id="password2" placeholder="••••••••">
       </div>
       <div class="error" id="loginError"></div>
-      <button type="submit" class="btn-gold" id="loginBtn">Crear acceso y entrar</button>
+      <button type="submit" class="btn-gold" id="loginBtn">Crear acceso local</button>
     </form>
-    <p class="fineprint">Base local: tu acceso se guarda solo en este navegador, en este dispositivo.<br>La autenticación real en la nube se conecta en el siguiente paso.</p>
+    <p class="fineprint">Bloqueo local del navegador. No es autenticación real y se puede eludir desde este dispositivo. Tus registros no se envían a un servidor. Descarga un respaldo desde Configuración.</p>
   </div>
 </div>
 
@@ -194,7 +194,7 @@
           <div class="stat"><div class="k">Balance (resultado total)</div><div class="v" id="stBalance">—</div></div>
           <div class="stat"><div class="k">Resultado de hoy</div><div class="v" id="stHoy">—</div></div>
           <div class="stat"><div class="k">Resultado del mes</div><div class="v" id="stMes">—</div></div>
-          <div class="stat"><div class="k">% de aciertos</div><div class="v" id="stWin">—</div></div>
+          <div class="stat"><div class="k">% de aciertos, sin empates</div><div class="v" id="stWin">—</div></div>
         </div>
         <div class="panel-box" id="panelHint">Todavía no tienes operaciones. Ve a <b>Operaciones</b> y registra la primera: el panel se llena solo.</div>
       </section>
@@ -270,7 +270,7 @@
       <!-- ESTRATEGIAS -->
       <section class="section" id="sec-estrategias">
         <h2>Estrategias</h2>
-        <p class="desc">Las 5 reglas de tu sistema del oro, destiladas de tu estudio de los grandes (vault, notas 09 y 10) y probadas con tu serie de 5 años. No son predicciones: son disciplina escrita. Cada una dice qué mirar en el parte del día.</p>
+        <p class="desc">Las reglas de este sistema sirven para disciplina y registro, no son predicciones ni recomendaciones. Las cifras de backtest que aparecen abajo están pendientes de validación: este repositorio no incluye la serie de precios ni el método para reproducirlas.</p>
 
         <div class="strat-grid">
           <div class="strat">
@@ -281,7 +281,7 @@
               <li><b>Precio bajo la MA-200</b> → defensa: nada de compras tácticas nuevas, aunque los demás motores brillen.</li>
               <li><b>Salida:</b> si el cierre pierde la MA-200, lo táctico se reduce o se cierra.</li>
             </ul>
-            <div class="senal">🔎 <b>Señal en el parte:</b> bloque 1, precio contra las medias de 20/50/200 días. En tu prueba de 5 años, el estado alcista rindió +2,30% medio a 20 sesiones, con 65% de veces positivo.</div>
+            <div class="senal">🔎 <b>Dato pendiente de validar:</b> el borrador reporta +2,30% medio a 20 sesiones y 65% positivo para el estado alcista. Faltan la serie de precios y el método reproducible.</div>
             <button class="use" data-dir="" data-nota="Estrategia 1 · Puerta MA-200">📌 Usar en mi posición de hoy</button>
           </div>
 
@@ -310,14 +310,14 @@
           </div>
 
           <div class="strat">
-            <div class="top"><div class="num">4</div><h3>🎯 Rebote en sobreventa extrema</h3><span class="src">Tu backtest · 5 años</span></div>
-            <p class="idea">Cuando el RSI-14 cae bajo 30, el oro históricamente rebota: en tu serie de 5 años subió +5,10% medio a 20 sesiones y fue positivo el 86% de las veces.</p>
+            <div class="top"><div class="num">4</div><h3>🎯 Rebote en sobreventa extrema</h3><span class="src">Backtest reportado · sin datos adjuntos</span></div>
+            <p class="idea">El RSI-14 bajo 30 puede servir como condición de estudio, pero este repositorio no contiene datos ni método para comprobar las cifras del backtest reportado (+5,10% medio a 20 sesiones, 86% positivo y 14 señales).</p>
             <ul>
               <li><b>Entrada:</b> solo con RSI &lt; 30 <b>y</b> confirmación (el cierre recupera un nivel del parte). Sin confirmación, no hay rebote: hay caída libre.</li>
               <li><b>Tamaño medido:</b> la señal es rara — solo 14 días en 5 años — y llega en plena caída. Paciencia y stop bajo el mínimo.</li>
               <li><b>Salida:</b> al volver el RSI a zona neutral o al alcanzar la primera resistencia fuerte.</li>
             </ul>
-            <div class="live">⚪ <b>Hoy esta señal está apagada:</b> se encendió el 25-nov con el RSI-14 en 29,10 (sobreventa) y el rebote ya corrió — el miércoles el oro cerró +0,93% recuperando $3.500. El parte del 26-nov trae el RSI en <b>31,86</b>, fuera de sobreventa. Se reenciende si el RSI vuelve bajo 30.</div>
+            <div class="live">ℹ️ <b>Sin datos en vivo:</b> el valor manual anterior fue RSI-14 en 31,86 al 26-nov-2026. Este dato puede estar desactualizado. Actualízalo con una fuente verificable antes de usarlo para analizar una posición.</div>
             <div class="senal">🔎 <b>Señal en el parte:</b> el RSI-14 del bloque 1, junto a los soportes del día.</div>
             <button class="use" data-dir="Compra" data-nota="Estrategia 4 · Rebote sobreventa (RSI &lt; 30)">📌 Usar en mi posición de hoy</button>
           </div>
@@ -587,15 +587,23 @@
       <!-- CONFIGURACIÓN -->
       <section class="section" id="sec-config">
         <h2>Configuración</h2>
-        <p class="desc">Tu cuenta y tus datos en este dispositivo.</p>
+        <p class="desc">Acceso local y registros guardados en este navegador. No hay cuentas ni respaldo en la nube.</p>
         <div class="panel-box" style="margin-top:0;">
-          <p style="font-size:14px; color:var(--muted);">Sesión iniciada como <b id="cfgEmail" style="color:var(--text);"></b></p>
-          <label>Contraseña actual</label>
+          <p style="font-size:14px; color:var(--muted);">Acceso local de <b id="cfgEmail" style="color:var(--text);"></b>. Esta clave solo bloquea la interfaz de este navegador.</p>
+          <label>Clave local actual</label>
           <input type="password" id="cfgActual" placeholder="••••••••">
-          <label>Nueva contraseña</label>
+          <label>Nueva clave local</label>
           <input type="password" id="cfgNueva" placeholder="••••••••">
           <div class="error" id="cfgError"></div>
-          <button class="btn-add" id="cfgCambiar" style="margin-top:14px;">Cambiar contraseña</button>
+          <button class="btn-add" id="cfgCambiar" style="margin-top:14px;">Cambiar clave local</button>
+        </div>
+        <div class="panel-box">
+          <h3 style="margin-bottom:8px;">Respaldo de registros</h3>
+          <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">El archivo incluye operaciones, posiciones y diario. No incluye correo ni clave. Restaurar reemplaza esos registros en este navegador.</p>
+          <button class="btn-add" id="backupExport" type="button">Descargar respaldo JSON</button>
+          <label for="backupImport">Restaurar respaldo JSON</label>
+          <input type="file" id="backupImport" accept="application/json,.json">
+          <div id="backupMsg" style="color:var(--muted); font-size:13px; margin-top:8px;" aria-live="polite"></div>
         </div>
         <div class="panel-box">
           <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">Borra el acceso y todos los datos guardados en este navegador.</p>
@@ -770,7 +778,8 @@
       el.className = "v" + (signed ? (val>0?" pos":(val<0?" neg":"")) : "");
     }
     setV("stBalance", total, true); setV("stHoy", rHoy, true); setV("stMes", rMes, true);
-    $("stWin").textContent = ops.length ? Math.round(gan/ops.length*100)+"%" : "—";
+    var cerradas=gan+per;
+    $("stWin").textContent = cerradas ? Math.round(gan/cerradas*100)+"%" : "—";
     $("panelHint").style.display = ops.length ? "none" : "block";
     $("esTotal").textContent = ops.length || "—";
     $("esGan").textContent = ops.length ? gan : "—";
@@ -781,6 +790,88 @@
   /* ---------- POSICIONES DIARIAS ---------- */
   function getPos(){ try{ return JSON.parse(localStorage.getItem(K_POS)||"[]"); }catch(e){ return []; } }
   function setPos(p){ localStorage.setItem(K_POS, JSON.stringify(p)); }
+  function getDiario(){ try{ var d=JSON.parse(localStorage.getItem(K_DIARIO)||"{}"); return d && typeof d==="object" && !Array.isArray(d) ? d : {}; }catch(e){ return {}; } }
+  function setBackupMessage(message, isError){
+    var el=$("backupMsg"); el.textContent=message; el.style.color=isError?"var(--red)":"var(--muted)";
+  }
+  $("backupExport").addEventListener("click", function(){
+    var payload={
+      format:"gestion-trading-backup",
+      version:1,
+      exportedAt:new Date().toISOString(),
+      data:{operations:getOps(), positions:getPos(), diary:getDiario()}
+    };
+    var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download="respaldo-trading-"+todayStr()+".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+    setBackupMessage("Respaldo descargado. Guárdalo en un lugar seguro.",false);
+  });
+  $("backupImport").addEventListener("change", function(ev){
+    var file=ev.target.files && ev.target.files[0];
+    if(!file) return;
+    if(file.size>10*1024*1024){
+      setBackupMessage("El archivo supera el máximo de 10 MB.",true); ev.target.value=""; return;
+    }
+    var reader=new FileReader();
+    reader.onerror=function(){setBackupMessage("No se pudo leer el archivo.",true);ev.target.value="";};
+    reader.onload=function(){
+      try{
+        var backup=JSON.parse(String(reader.result||""));
+        var d=backup && backup.data;
+        if(backup.format!=="gestion-trading-backup" || backup.version!==1 || !d ||
+           !Array.isArray(d.operations) || !Array.isArray(d.positions) ||
+           !d.diary || typeof d.diary!=="object" || Array.isArray(d.diary) ||
+           d.operations.length>50000 || d.positions.length>50000 ||
+           Object.keys(d.diary).length>50000){
+          throw new Error("El formato del respaldo no es válido.");
+        }
+        var validOps=d.operations.every(function(o){
+          return o && typeof o==="object" &&
+            typeof o.fecha==="string" && o.fecha.length<=20 &&
+            typeof o.activo==="string" && o.activo.length<=100 &&
+            typeof o.dir==="string" && o.dir.length<=20 &&
+            (o.entrada==null || (typeof o.entrada==="string" && o.entrada.length<=100)) &&
+            (o.salida==null || (typeof o.salida==="string" && o.salida.length<=100)) &&
+            typeof o.resultado==="number" && Number.isFinite(o.resultado);
+        });
+        var validPositions=d.positions.every(function(p){
+          return p && typeof p==="object" &&
+            typeof p.fecha==="string" && p.fecha.length<=20 &&
+            typeof p.activo==="string" && p.activo.length<=100 &&
+            typeof p.dir==="string" && p.dir.length<=20 &&
+            ["entrada","stop","objetivo","nota"].every(function(k){
+              return p[k]==null || (typeof p[k]==="string" && p[k].length<=(k==="nota"?5000:100));
+            });
+        });
+        var validDiary=Object.keys(d.diary).every(function(k){
+          return /^\\d{4}-\\d{2}-\\d{2}$/.test(k) && typeof d.diary[k]==="string" && d.diary[k].length<=20000;
+        });
+        if(!validOps || !validPositions || !validDiary) throw new Error("El respaldo contiene registros inválidos.");
+        if(!confirm("Restaurar reemplazará operaciones, posiciones y notas actuales. Descarga un respaldo antes de continuar. ¿Deseas restaurar?")){
+          ev.target.value=""; return;
+        }
+        var oldOps=localStorage.getItem(K_OPS), oldPos=localStorage.getItem(K_POS), oldDiary=localStorage.getItem(K_DIARIO);
+        try{
+          localStorage.setItem(K_OPS,JSON.stringify(d.operations));
+          localStorage.setItem(K_POS,JSON.stringify(d.positions));
+          localStorage.setItem(K_DIARIO,JSON.stringify(d.diary));
+        }catch(storageError){
+          if(oldOps===null)localStorage.removeItem(K_OPS);else localStorage.setItem(K_OPS,oldOps);
+          if(oldPos===null)localStorage.removeItem(K_POS);else localStorage.setItem(K_POS,oldPos);
+          if(oldDiary===null)localStorage.removeItem(K_DIARIO);else localStorage.setItem(K_DIARIO,oldDiary);
+          throw new Error("No hay espacio para guardar el respaldo. No se aplicaron los cambios.");
+        }
+        renderOps(); renderStats(); renderPos(); loadDiario();
+        setBackupMessage("Respaldo restaurado correctamente.",false);
+      }catch(err){
+        setBackupMessage(err && err.message ? err.message : "No se pudo restaurar el respaldo.",true);
+      }
+      ev.target.value="";
+    };
+    reader.readAsText(file);
+  });
   function renderPos(){
     var pos=getPos(), body=$("posBody"); body.innerHTML="";
     $("posEmpty").style.display = pos.length ? "none" : "block";
